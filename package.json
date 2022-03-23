@@ -1,0 +1,17 @@
+{
+  "name": "pex-loaders",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Damien Seguin (https://github.com/dmnsgn)",
+  "license": "MIT",
+  "dependencies": {
+    "ktx-parse": "^0.2.1",
+    "pex-io": "^2.1.0",
+    "zstddec": "^0.0.2"
+  }
+}
