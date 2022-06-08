@@ -1,14 +1,34 @@
 {
   "name": "pex-loaders",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "Damien Seguin (https://github.com/dmnsgn)",
+  "description": "Resource loader for PEX.",
+  "keywords": [
+    "pex",
+    "renderer",
+    "webgl",
+    "3d",
+    "loaders",
+    "gltf",
+    "basis",
+    "ktx",
+    "draco"
+  ],
+  "homepage": "https://github.com/pex-gl/pex-loaders",
+  "bugs": "https://github.com/pex-gl/pex-loaders/issues",
+  "repository": "pex-gl/pex-loaders",
   "license": "MIT",
+  "author": "Damien Seguin (https://github.com/dmnsgn)",
+  "contributors": [
+    "Marcin Ignac <marcin.ignac@gmail.com> (http://marcinignac.com)"
+  ],
+  "type": "module",
+  "exports": "./index.js",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
   "dependencies": {
     "ktx-parse": "^0.2.1",
     "pex-io": "^2.1.0",

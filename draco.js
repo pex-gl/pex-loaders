@@ -1,21 +1,20 @@
-const { loadBinary } = require('pex-io')
+import { loadArrayBuffer } from "pex-io";
 
-const DracoWorker = require('./draco-worker.js')
-const WorkerPool = require('./worker-pool.js')
+import WorkerPool from "./worker-pool.js";
 
-let workerPool
+let workerPool;
 
 // Decoder API
-let transcoderPending
+let transcoderPending;
 
 const getWorkerStringUrl = (transcoder, worker) => {
   const str = `
 ${transcoder}
 ${worker}
 DracoWorker()
-`
-  return URL.createObjectURL(new Blob([str]))
-}
+`;
+  return URL.createObjectURL(new Blob([str]));
+};
 
 // TODO: draco_decoder.js only
 const getTranscoder = async (transcoderPath) =>
@@ -23,52 +22,54 @@ const getTranscoder = async (transcoderPath) =>
   Promise.all([
     getWorkerStringUrl(
       await (await fetch(`${transcoderPath}draco_wasm_wrapper.js`)).text(),
-      await (await (await fetch(`${transcoderPath}draco-worker.js`)).text()).replace("module.exports = DracoWorker", ""),
+      await (
+        await (await fetch(`${transcoderPath}draco-worker.js`)).text()
+      ).replace("module.exports = DracoWorker", "")
       // DracoWorker.toString()
     ),
-    await (await fetch(`${transcoderPath}draco_decoder.wasm`)).arrayBuffer()
-  ])
+    await (await fetch(`${transcoderPath}draco_decoder.wasm`)).arrayBuffer(),
+  ]);
 
 function loadGeometry(buffer, taskConfig) {
-  const taskKey = JSON.stringify(taskConfig)
+  const taskKey = JSON.stringify(taskConfig);
 
-  const cachedTask = workerPool.hasTask(taskKey, buffer)
-  if (cachedTask) return cachedTask
+  const cachedTask = workerPool.hasTask(taskKey, buffer);
+  if (cachedTask) return cachedTask;
 
-  let worker
-  let taskId
+  let worker;
+  let taskId;
 
   const geometryPending = workerPool
     .getWorker(transcoderPending, buffer.byteLength)
     .then((workerData) => {
-      ;({ worker: worker, taskId: taskId } = workerData)
+      ({ worker, taskId } = workerData);
 
       return new Promise((resolve, reject) => {
-        worker._callbacks[taskId] = { resolve, reject }
+        worker._callbacks[taskId] = { resolve, reject };
 
-        worker.postMessage({ type: 'decode', id: taskId, taskConfig, buffer }, [
-          buffer
-        ])
-      })
+        worker.postMessage({ type: "decode", id: taskId, taskConfig, buffer }, [
+          buffer,
+        ]);
+      });
     })
-    .then((message) => message.geometry)
+    .then(({ geometry }) => geometry);
 
   // Remove task from the task list.
   geometryPending
     .catch(() => true)
     .then(() => {
       if (worker && taskId) {
-        workerPool.releaseTask(worker, taskId)
+        workerPool.releaseTask(worker, taskId);
       }
-    })
+    });
 
   // Cache the task result.
   workerPool.taskCache.set(buffer, {
     key: taskKey,
-    promise: geometryPending
-  })
+    promise: geometryPending,
+  });
 
-  return geometryPending
+  return geometryPending;
 }
 
 // Load
@@ -76,35 +77,35 @@ async function loadDraco(
   data,
   gl,
   {
-    transcoderPath = 'assets/decoders/draco/',
+    transcoderPath = "assets/decoders/draco/",
     transcodeConfig = {
       attributeIDs: {
-        positions: 'POSITION',
-        normals: 'NORMAL',
-        texCoords: 'TEX_COORD',
-        colors: 'COLOR'
+        positions: "POSITION",
+        normals: "NORMAL",
+        texCoords: "TEX_COORD",
+        colors: "COLOR",
       },
       attributeTypes: {
-        positions: 'Float32Array',
-        normals: 'Float32Array',
-        texCoords: 'Float32Array',
-        colors: 'Float32Array'
+        positions: "Float32Array",
+        normals: "Float32Array",
+        texCoords: "Float32Array",
+        colors: "Float32Array",
       },
-      useUniqueIDs: false
+      useUniqueIDs: false,
     },
 
     workerLimit,
-    workerConfig
+    workerConfig,
   } = {}
 ) {
-  if (!workerPool) workerPool = new WorkerPool(workerLimit, workerConfig)
+  if (!workerPool) workerPool = new WorkerPool(workerLimit, workerConfig);
 
-  transcoderPending = getTranscoder(transcoderPath)
+  transcoderPending = getTranscoder(transcoderPath);
 
   return await loadGeometry(
-    data instanceof ArrayBuffer ? data : await loadBinary(data),
+    data instanceof ArrayBuffer ? data : await loadArrayBuffer(data),
     transcodeConfig
-  )
+  );
 }
 
-module.exports = loadDraco
+export default loadDraco;

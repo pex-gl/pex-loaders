@@ -1,15 +1,14 @@
-const { loadBinary } = require('pex-io')
+import { loadArrayBuffer } from "pex-io";
 
-const BasisWorker = require('./basis-worker.js')
-const WorkerPool = require('./worker-pool.js')
+import WorkerPool from "./worker-pool.js";
 
-let workerPool
+let workerPool;
 
 // Constants
 const BasisFormat = {
   ETC1S: 0,
-  UASTC_4x4: 1
-}
+  UASTC_4x4: 1,
+};
 
 const TranscoderFormat = {
   ETC1: 0,
@@ -28,8 +27,8 @@ const TranscoderFormat = {
   RGBA32: 13,
   RGB565: 14,
   BGR565: 15,
-  RGBA4444: 16
-}
+  RGBA4444: 16,
+};
 
 const InternalFormat = {
   // RGBAFormat: 1023,
@@ -42,11 +41,11 @@ const InternalFormat = {
   RGB_ETC1_Format: 36196,
   RGB_ETC2_Format: 37492,
   RGB_PVRTC_4BPPV1_Format: 35840,
-  RGB_S3TC_DXT1_Format: 33776
-}
+  RGB_S3TC_DXT1_Format: 33776,
+};
 
 // Decoder API
-let transcoderPending
+let transcoderPending;
 
 const getWorkerStringUrl = (transcoder, worker) => {
   const str = `const _InternalFormat = ${JSON.stringify(InternalFormat)}
@@ -55,116 +54,118 @@ const _BasisFormat = ${JSON.stringify(BasisFormat)}
 ${transcoder}
 ${worker}
 BasisWorker(_InternalFormat, _TranscoderFormat, _BasisFormat)
-`
-  return URL.createObjectURL(new Blob([str]))
-}
+`;
+  return URL.createObjectURL(new Blob([str]));
+};
 
 const getTranscoder = async (transcoderPath) =>
   transcoderPending ||
   Promise.all([
     getWorkerStringUrl(
       await (await fetch(`${transcoderPath}basis_transcoder.js`)).text(),
-      await (await (await fetch(`${transcoderPath}basis-worker.js`)).text()).replace("module.exports = BasisWorker", ""),
+      await (
+        await (await fetch(`${transcoderPath}basis-worker.js`)).text()
+      ).replace("module.exports = BasisWorker", "")
       // BasisWorker.toString()
     ),
-    await (await fetch(`${transcoderPath}basis_transcoder.wasm`)).arrayBuffer()
-  ])
+    await (await fetch(`${transcoderPath}basis_transcoder.wasm`)).arrayBuffer(),
+  ]);
 
 // Texture creation
 const loadCompressedTexture = async (buffers, taskConfig = {}) => {
-  const { globalData, levels, ...taskConfigForCache } = taskConfig
-  const taskKey = JSON.stringify(taskConfigForCache)
+  const { globalData, levels, ...taskConfigForCache } = taskConfig;
+  const taskKey = JSON.stringify(taskConfigForCache);
 
-  const cachedTask = workerPool.hasTask(taskKey, buffers[0])
-  if (cachedTask) return cachedTask
+  const cachedTask = workerPool.hasTask(taskKey, buffers[0]);
+  if (cachedTask) return cachedTask;
 
-  let worker
-  let taskId
-  let taskCost = 0
+  let worker;
+  let taskId;
+  let taskCost = 0;
 
   for (let i = 0; i < buffers.length; i++) {
-    taskCost += buffers[i].byteLength
+    taskCost += buffers[i].byteLength;
   }
 
   const texturePending = workerPool
     .getWorker(transcoderPending, taskCost)
     .then((workerData) => {
-      ;({ worker: worker, taskId: taskId } = workerData)
+      ({ worker, taskId } = workerData);
 
       return new Promise((resolve, reject) => {
-        worker._callbacks[taskId] = { resolve, reject }
+        worker._callbacks[taskId] = { resolve, reject };
 
         worker.postMessage(
           {
-            type: 'decode',
+            type: "decode",
             id: taskId,
             taskConfig,
-            buffers
+            buffers,
           },
           buffers
-        )
-      })
+        );
+      });
     })
     .then((message) => {
-      const { type, id, hasAlpha, ...texture } = message
+      const { type, id, hasAlpha, ...texture } = message;
 
       return {
         compressed: texture.internalFormat !== InternalFormat.RGBAFormat,
-        ...texture
-      }
-    })
+        ...texture,
+      };
+    });
 
   // Remove task from the task list.
   texturePending
     .catch(() => true)
     .then(() => {
       if (worker && taskId) {
-        workerPool.releaseTask(worker, taskId)
+        workerPool.releaseTask(worker, taskId);
       }
-    })
+    });
 
   workerPool.taskCache.set(buffers[0], {
     key: taskKey,
-    promise: texturePending
-  })
+    promise: texturePending,
+  });
 
-  return texturePending
-}
+  return texturePending;
+};
 
 // Load
 async function loadBasis(
   data,
   gl,
   {
-    transcoderPath = 'assets/decoders/basis/',
+    transcoderPath = "assets/decoders/basis/",
     transcodeConfig = {},
     workerLimit,
     workerConfig = {
-      astcSupported: !!gl.getExtension('WEBGL_compressed_texture_astc'),
-      etc1Supported: !!gl.getExtension('WEBGL_compressed_texture_etc1'),
-      etc2Supported: !!gl.getExtension('WEBGL_compressed_texture_etc'),
-      dxtSupported: !!gl.getExtension('WEBGL_compressed_texture_s3tc'),
-      bptcSupported: !!gl.getExtension('EXT_texture_compression_bptc'),
+      astcSupported: !!gl.getExtension("WEBGL_compressed_texture_astc"),
+      etc1Supported: !!gl.getExtension("WEBGL_compressed_texture_etc1"),
+      etc2Supported: !!gl.getExtension("WEBGL_compressed_texture_etc"),
+      dxtSupported: !!gl.getExtension("WEBGL_compressed_texture_s3tc"),
+      bptcSupported: !!gl.getExtension("EXT_texture_compression_bptc"),
       pvrtcSupported:
-        !!gl.getExtension('WEBGL_compressed_texture_pvrtc') ||
-        !!gl.getExtension('WEBKIT_WEBGL_compressed_texture_pvrtc')
-    }
+        !!gl.getExtension("WEBGL_compressed_texture_pvrtc") ||
+        !!gl.getExtension("WEBKIT_WEBGL_compressed_texture_pvrtc"),
+    },
   } = {}
 ) {
-  if (!workerPool) workerPool = new WorkerPool(workerLimit, workerConfig)
+  if (!workerPool) workerPool = new WorkerPool(workerLimit, workerConfig);
 
-  transcoderPending = getTranscoder(transcoderPath)
+  transcoderPending = getTranscoder(transcoderPath);
 
-  const hasManyBuffers = Array.isArray(data)
+  const hasManyBuffers = Array.isArray(data);
 
   const buffers = hasManyBuffers
     ? data
     : data instanceof ArrayBuffer
     ? [data]
-    : [await loadBinary(data)]
+    : [await loadArrayBuffer(data)];
 
-  return await loadCompressedTexture(buffers, transcodeConfig)
+  return await loadCompressedTexture(buffers, transcodeConfig);
 }
 
-module.exports = loadBasis
-module.exports.BasisFormat = BasisFormat
+export default loadBasis;
+export { BasisFormat };

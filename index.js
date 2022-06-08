@@ -1,7 +1,2 @@
-const loadDraco = require("./draco.js");
-const loadKtx2 = require("./ktx2.js");
-
-module.exports = {
-  loadDraco,
-  loadKtx2,
-};
+export { default as loadDraco } from "./draco.js";
+export { default as loadKtx2 } from "./ktx2.js";
