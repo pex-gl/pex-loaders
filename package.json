@@ -1,6 +1,6 @@
 {
   "name": "pex-loaders",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Resource loader for PEX.",
   "keywords": [
     "pex",
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "ktx-parse": "^0.2.1",
-    "pex-io": "^2.1.0",
+    "pex-io": "^3.0.0-alpha.0",
     "zstddec": "^0.0.2"
   }
 }
