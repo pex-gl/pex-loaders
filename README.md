@@ -31,7 +31,6 @@ console.log(pexLoaders);
 
 <!-- api-start -->
 
-Auto-generated API content.
 
 <!-- api-end -->
 
