@@ -25,13 +25,17 @@
   "exports": "./index.js",
   "main": "index.js",
   "types": "types/index.d.ts",
-  "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=7.0.0"
+  "scripts": {
+    "build": "snowdev build",
+    "release": "snowdev release"
   },
   "dependencies": {
     "ktx-parse": "^0.2.1",
     "pex-io": "^3.0.0-alpha.0",
     "zstddec": "^0.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
   }
 }
