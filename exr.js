@@ -2231,17 +2231,19 @@ function parseExr(buffer, type = HalfFloatType) {
  * @returns {Promise<ctx.texture2D>}
  */
 async function loadExr(ctx, data, options, texture) {
+  const outputType = options?.type || FloatType;
   // eslint-disable-next-line no-unused-vars
   const { type, header, ...parsed } = parseExr(
     data instanceof ArrayBuffer ? data : await loadArrayBuffer(data),
-    options.type || HalfFloatType,
+    outputType,
   );
 
   texture ||= ctx.texture2D({
     width: 1,
     height: 1,
     encoding: ctx.Encoding.Linear,
-    pixelFormat: ctx.PixelFormat.RGBA32F,
+    pixelFormat:
+      ctx.PixelFormat[outputType === FloatType ? "RGBA32F" : "RGBA16F"],
     min: ctx.Filter.Linear,
     mag: ctx.Filter.Linear,
   });
