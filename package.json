@@ -24,6 +24,7 @@
   "contributors": [
     "Marcin Ignac <marcin.ignac@gmail.com> (http://marcinignac.com)"
   ],
+  "sideEffects": false,
   "type": "module",
   "exports": "./index.js",
   "main": "index.js",
