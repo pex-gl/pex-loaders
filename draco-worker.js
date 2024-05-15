@@ -34,13 +34,13 @@ function DracoWorker() {
             draco,
             decoder,
             decoderBuffer,
-            taskConfig
+            taskConfig,
           );
 
           self.postMessage(
             { type: "decode", id: message.id, geometry },
             // List buffers to make them transferable
-            Object.values(geometry).map(({ data }) => data.buffer)
+            Object.values(geometry).map(({ data }) => data.buffer),
           );
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -63,7 +63,7 @@ function DracoWorker() {
     draco,
     decoder,
     decoderBuffer,
-    { attributeIDs, attributeTypes, useUniqueIDs }
+    { attributeIDs, attributeTypes, useUniqueIDs },
   ) {
     let dracoGeometry;
     let decodingStatus;
@@ -77,7 +77,7 @@ function DracoWorker() {
       dracoGeometry = new draco.PointCloud();
       decodingStatus = decoder.DecodeBufferToPointCloud(
         decoderBuffer,
-        dracoGeometry
+        dracoGeometry,
       );
     } else {
       throw new Error("DracoWorker: Unexpected geometry type.");
@@ -85,7 +85,7 @@ function DracoWorker() {
 
     if (!decodingStatus.ok() || dracoGeometry.ptr === 0) {
       throw new Error(
-        `DracoWorker: Decoding failed: ${decodingStatus.error_msg()}`
+        `DracoWorker: Decoding failed: ${decodingStatus.error_msg()}`,
       );
     }
 
@@ -107,7 +107,7 @@ function DracoWorker() {
       } else {
         attributeID = decoder.GetAttributeId(
           dracoGeometry,
-          draco[attributeIDs[attributeName]]
+          draco[attributeIDs[attributeName]],
         );
 
         if (attributeID === -1) continue;
@@ -121,7 +121,7 @@ function DracoWorker() {
         dracoGeometry,
         attributeName,
         attributeType,
-        attribute
+        attribute,
       );
       geometry[name] = { data: array, itemSize };
     }
@@ -145,7 +145,7 @@ function DracoWorker() {
     const index = new Uint32Array(
       draco.HEAPF32.buffer,
       ptr,
-      numIndices
+      numIndices,
     ).slice();
     draco._free(ptr);
 
@@ -158,7 +158,7 @@ function DracoWorker() {
     dracoGeometry,
     attributeName,
     attributeType,
-    attribute
+    attribute,
   ) {
     const numComponents = attribute.num_components();
     const numPoints = dracoGeometry.num_points();
@@ -172,12 +172,12 @@ function DracoWorker() {
       attribute,
       dataType,
       byteLength,
-      ptr
+      ptr,
     );
     const array = new attributeType(
       draco.HEAPF32.buffer,
       ptr,
-      numValues
+      numValues,
     ).slice();
     draco._free(ptr);
 

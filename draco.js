@@ -24,7 +24,7 @@ const getTranscoder = async (transcoderPath) =>
       await (await fetch(`${transcoderPath}draco_wasm_wrapper.js`)).text(),
       await (
         await (await fetch(`${transcoderPath}draco-worker.js`)).text()
-      ).replace("module.exports = DracoWorker", "")
+      ).replace("module.exports = DracoWorker", ""),
       // DracoWorker.toString()
     ),
     await (await fetch(`${transcoderPath}draco_decoder.wasm`)).arrayBuffer(),
@@ -95,7 +95,7 @@ async function loadDraco(
 
     workerLimit,
     workerConfig,
-  } = {}
+  } = {},
 ) {
   if (!workerPool) workerPool = new WorkerPool(workerLimit, workerConfig);
 
@@ -103,7 +103,7 @@ async function loadDraco(
 
   return await loadGeometry(
     data instanceof ArrayBuffer ? data : await loadArrayBuffer(data),
-    transcodeConfig
+    transcodeConfig,
   );
 }
 

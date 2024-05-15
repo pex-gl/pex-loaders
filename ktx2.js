@@ -74,7 +74,7 @@ async function loadKtx2(data, { basisOptions = {} } = {}) {
     if (isZstd) {
       levelData = zstd.decode(
         levelData,
-        ktx.levels[levelIndex].uncompressedByteLength
+        ktx.levels[levelIndex].uncompressedByteLength,
       );
     }
 
@@ -115,12 +115,12 @@ async function loadKtx2(data, { basisOptions = {} } = {}) {
         levels.reduce((buffers, level) => {
           buffers.add(level.data.buffer);
           return buffers;
-        }, new Set())
+        }, new Set()),
       ),
       {
         ...basisOptions,
         transcodeConfig: parseConfig,
-      }
+      },
     )
       // Add extra ktx props
       .then((texture) => ({
