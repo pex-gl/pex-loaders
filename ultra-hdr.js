@@ -9,7 +9,7 @@ import { MPFExtractor, extractXMP } from "@monogrid/gainmap-js";
  * @alias module:pex-loaders.loadUltraHdr
  * @param {ctx} ctx
  * @param {string | ArrayBuffer} data
- * @param {ctx.texture2D} [texture]
+ * @param {ctx.texture2D} [texture] Optionally pass an already created texture resource.
  * @returns {Promise<ctx.texture2D>}
  */
 async function loadUltraHdr(ctx, data, texture) {

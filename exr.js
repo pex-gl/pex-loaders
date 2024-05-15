@@ -2217,17 +2217,24 @@ function parseExr(buffer, type = HalfFloatType) {
 }
 
 /**
+ * @typedef ExrOptions
+ * @property {number} [type=1016] Half Float WebGL type. Also supports Float (1015).
+ */
+
+/**
  * Load an EXR file or array buffer as a texture
  * @alias module:pex-loaders.loadExr
  * @param {ctx} ctx
  * @param {string | ArrayBuffer} data
- * @param {ctx.texture2D} [texture]
+ * @param {ExrOptions} [options]
+ * @param {ctx.texture2D} [texture] Optionally pass an already created texture resource.
  * @returns {Promise<ctx.texture2D>}
  */
-async function loadExr(ctx, data, texture) {
+async function loadExr(ctx, data, options, texture) {
   // eslint-disable-next-line no-unused-vars
   const { type, header, ...parsed } = parseExr(
     data instanceof ArrayBuffer ? data : await loadArrayBuffer(data),
+    options.type || HalfFloatType,
   );
 
   texture ||= ctx.texture2D({

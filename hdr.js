@@ -7,7 +7,7 @@ import parseHdr from "parse-hdr";
  * @alias module:pex-loaders.loadHdr
  * @param {ctx} ctx
  * @param {string | ArrayBuffer} data
- * @param {ctx.texture2D} [texture]
+ * @param {ctx.texture2D} [texture] Optionally pass an already created texture resource.
  * @returns {Promise<ctx.texture2D>}
  */
 async function loadHdr(ctx, data, texture) {
