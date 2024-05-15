@@ -32,12 +32,12 @@
   "dependencies": {
     "@monogrid/gainmap-js": "^3.0.5",
     "fflate": "^0.8.2",
-    "ktx-parse": "^0.2.1",
+    "ktx-parse": "^0.7.0",
     "parse-hdr": "^1.0.0",
     "pex-io": "^3.0.1",
     "pex-math": "^4.1.0",
     "pex-shaders": "^1.0.0-alpha.27",
-    "zstddec": "^0.0.2"
+    "zstddec": "^0.1.0"
   },
   "engines": {
     "node": ">=16.0.0",

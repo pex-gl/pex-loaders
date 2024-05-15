@@ -12,8 +12,6 @@
 
 Resource loader for [PEX](https://pex.gl).
 
-![](https://raw.githubusercontent.com/pex-gl/pex-loaders/main/screenshot.gif)
-
 ## Installation
 
 ```bash

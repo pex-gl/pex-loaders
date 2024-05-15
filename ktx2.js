@@ -2,12 +2,10 @@ import { loadArrayBuffer } from "pex-io";
 
 import {
   read as readKTX,
-  KTX2ChannelETC1S,
-  KTX2ChannelUASTC,
-  KTX2Flags,
-  KTX2Model,
-  KTX2SupercompressionScheme,
-  KTX2Transfer,
+  KHR_DF_MODEL_UASTC,
+  KHR_SUPERCOMPRESSION_ZSTD,
+  KHR_DF_TRANSFER_SRGB,
+  KHR_DF_FLAG_ALPHA_PREMULTIPLIED,
 } from "ktx-parse";
 import { ZSTDDecoder } from "zstddec";
 
@@ -16,9 +14,23 @@ import loadBasis, { BasisFormat } from "./basis.js";
 let zstd;
 let zstdPending;
 
+const KTX2ChannelETC1S = {
+  RGB: 0,
+  RRR: 3,
+  GGG: 4,
+  AAA: 15,
+};
+
+const KTX2ChannelUASTC = {
+  RGB: 0,
+  RGBA: 3,
+  RRR: 4,
+  RRRG: 5,
+};
+
 const getAlpha = ({ colorModel, samples }) => {
-  if (colorModel === KTX2Model.UASTC) {
-    if ((samples[0].channelID & 0xf) === KTX2ChannelUASTC.RGBA) {
+  if (colorModel === KHR_DF_MODEL_UASTC) {
+    if ((samples[0].channelType & 0xf) === KTX2ChannelUASTC.RGBA) {
       return true;
     }
     return false;
@@ -26,7 +38,7 @@ const getAlpha = ({ colorModel, samples }) => {
 
   if (
     samples.length === 2 &&
-    (samples[1].channelID & 0xf) === KTX2ChannelETC1S.AAA
+    (samples[1].channelType & 0xf) === KTX2ChannelETC1S.AAA
   ) {
     return true;
   }
@@ -66,7 +78,7 @@ async function loadKtx2(data, { basisOptions = {} } = {}) {
     throw new Error("Cube textures are not currently supported.");
   }
 
-  const isZstd = ktx.supercompressionScheme === KTX2SupercompressionScheme.ZSTD;
+  const isZstd = ktx.supercompressionScheme === KHR_SUPERCOMPRESSION_ZSTD;
   if (isZstd && !zstd) {
     zstd = new ZSTDDecoder();
     zstdPending = zstd.init();
@@ -103,7 +115,7 @@ async function loadKtx2(data, { basisOptions = {} } = {}) {
 
   // Parse basis
   const basisFormat =
-    dfd.colorModel === KTX2Model.UASTC
+    dfd.colorModel === KHR_DF_MODEL_UASTC
       ? BasisFormat.UASTC_4x4
       : BasisFormat.ETC1S;
 
@@ -138,8 +150,8 @@ async function loadKtx2(data, { basisOptions = {} } = {}) {
       .then((texture) => ({
         ...texture,
         // srgb or linear
-        encoding: dfd.transferFunction === KTX2Transfer.SRGB ? 3 : 1,
-        premultiplyAlpha: !!(dfd.flags & KTX2Flags.ALPHA_PREMULTIPLIED),
+        encoding: dfd.transferFunction === KHR_DF_TRANSFER_SRGB ? 3 : 1,
+        premultiplyAlpha: !!(dfd.flags & KHR_DF_FLAG_ALPHA_PREMULTIPLIED),
       }))
   );
 }
