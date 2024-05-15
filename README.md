@@ -21,7 +21,7 @@ npm install pex-loaders
 ## Usage
 
 ```js
-import { loadUltraHdr } from "pex-loaders";
+import { loadUltraHdr, loadHdr, loadExr } from "pex-loaders";
 
 const getEnvMap = async (ctx, url) => {
   if (url.endsWith(".jpg")) return await loadUltraHdr(ctx, url);
