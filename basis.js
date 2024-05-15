@@ -135,8 +135,8 @@ const loadCompressedTexture = async (buffers, taskConfig = {}) => {
 // Load
 async function loadBasis(
   data,
-  gl,
   {
+    gl,
     transcoderPath = "assets/decoders/basis/",
     transcodeConfig = {},
     workerLimit,

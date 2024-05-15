@@ -36,7 +36,7 @@ const getAlpha = ({ colorModel, samples }) => {
 // Load
 // - KTX: http://github.khronos.org/KTX-Specification/
 // - DFD: https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.html#basicdescriptor
-async function loadKtx2(data, gl, { basisOptions = {} } = {}) {
+async function loadKtx2(data, { basisOptions = {} } = {}) {
   const buffer =
     data instanceof ArrayBuffer ? data : await loadArrayBuffer(data);
 
@@ -117,7 +117,6 @@ async function loadKtx2(data, gl, { basisOptions = {} } = {}) {
           return buffers;
         }, new Set())
       ),
-      gl,
       {
         ...basisOptions,
         transcodeConfig: parseConfig,

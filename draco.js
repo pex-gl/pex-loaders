@@ -75,7 +75,6 @@ function loadGeometry(buffer, taskConfig) {
 // Load
 async function loadDraco(
   data,
-  gl,
   {
     transcoderPath = "assets/decoders/draco/",
     transcodeConfig = {
