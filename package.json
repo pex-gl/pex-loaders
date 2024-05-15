@@ -1,6 +1,6 @@
 {
   "name": "pex-loaders",
-  "version": "0.0.1",
+  "version": "1.0.0-alpha.0",
   "description": "Resource loader for PEX.",
   "keywords": [
     "pex",
