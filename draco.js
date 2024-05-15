@@ -74,10 +74,10 @@ function loadGeometry(buffer, taskConfig) {
 
 /**
  * @typedef DracoOptions
- * @property {string} [transcoderPath="assets/decoders/draco/"]
+ * @property {string} [transcoderPath='assets/decoders/draco/']
  * @property {object} [transcodeConfig={}]
  * @property {number} [workerLimit=4]
- * @property {object} [workerConfig={ astcSupported, etc1Supported, etc2Supported, dxtSupported, bptcSupported, pvrtcSupported }]
+ * @property {object} [workerConfig={}]
  */
 
 /**

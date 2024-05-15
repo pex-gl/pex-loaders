@@ -35,7 +35,6 @@ const getAlpha = ({ colorModel, samples }) => {
 
 /**
  * @typedef Ktx2Options
- * @property {WebGLRenderingContext | WebGL2RenderingContext} gl
  * @property {import("./basis.js").BasisOptions} [basisOptions={}]
  */
 

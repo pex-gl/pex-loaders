@@ -137,7 +137,7 @@ const loadCompressedTexture = async (buffers, taskConfig = {}) => {
 /**
  * @typedef BasisOptions
  * @property {WebGLRenderingContext | WebGL2RenderingContext} gl
- * @property {string} [transcoderPath="assets/decoders/basis/"]
+ * @property {string} [transcoderPath='assets/decoders/basis/']
  * @property {object} [transcodeConfig={}]
  * @property {number} [workerLimit=4]
  * @property {object} [workerConfig={ astcSupported, etc1Supported, etc2Supported, dxtSupported, bptcSupported, pvrtcSupported }]
