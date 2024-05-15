@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.1](https://github.com/pex-gl/pex-loaders/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2024-05-15)
+
+
+### Bug Fixes
+
+* add extract MPF and XMP for ultra hdr ([1b8c1bb](https://github.com/pex-gl/pex-loaders/commit/1b8c1bbe28bcf824858dd9a2951f3d256c781a5e))
+
+
+
 # [1.0.0-alpha.0](https://github.com/pex-gl/pex-loaders/compare/v0.0.1...v1.0.0-alpha.0) (2024-05-15)
 
 
