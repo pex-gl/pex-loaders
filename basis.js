@@ -134,7 +134,22 @@ const loadCompressedTexture = async (buffers, taskConfig = {}) => {
   return texturePending;
 };
 
-// Load
+/**
+ * @typedef BasisOptions
+ * @property {WebGLRenderingContext | WebGL2RenderingContext} gl
+ * @property {string} [transcoderPath="assets/decoders/basis/"]
+ * @property {object} [transcodeConfig={}]
+ * @property {number} [workerLimit=4]
+ * @property {object} [workerConfig={ astcSupported, etc1Supported, etc2Supported, dxtSupported, bptcSupported, pvrtcSupported }]
+ */
+
+/**
+ * Load a basis file or array buffer as texture options
+ * @alias module:pex-loaders.loadBasis
+ * @param {string | ArrayBuffer} data
+ * @param {BasisOptions} [options]
+ * @returns {Promise<object>}
+ */
 async function loadBasis(
   data,
   {

@@ -72,7 +72,21 @@ function loadGeometry(buffer, taskConfig) {
   return geometryPending;
 }
 
-// Load
+/**
+ * @typedef DracoOptions
+ * @property {string} [transcoderPath="assets/decoders/draco/"]
+ * @property {object} [transcodeConfig={}]
+ * @property {number} [workerLimit=4]
+ * @property {object} [workerConfig={ astcSupported, etc1Supported, etc2Supported, dxtSupported, bptcSupported, pvrtcSupported }]
+ */
+
+/**
+ * Load a draco file or array buffer as a texture
+ * @alias module:pex-loaders.loadDraco
+ * @param {string | ArrayBuffer} data
+ * @param {DracoOptions} [options]
+ * @returns {Promise<object>}
+ */
 async function loadDraco(
   data,
   {

@@ -33,9 +33,22 @@ const getAlpha = ({ colorModel, samples }) => {
   return false;
 };
 
-// Load
-// - KTX: http://github.khronos.org/KTX-Specification/
-// - DFD: https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.html#basicdescriptor
+/**
+ * @typedef Ktx2Options
+ * @property {WebGLRenderingContext | WebGL2RenderingContext} gl
+ * @property {import("./basis.js").BasisOptions} [basisOptions={}]
+ */
+
+/**
+ * Load a ktx2 file or array buffer as texture options
+ *
+ * - KTX: http://github.khronos.org/KTX-Specification/
+ * - DFD: https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.html#basicdescriptor
+ * @alias module:pex-loaders.loadKtx2
+ * @param {string | ArrayBuffer} data
+ * @param {Ktx2Options} [options]
+ * @returns {Promise<object>}
+ */
 async function loadKtx2(data, { basisOptions = {} } = {}) {
   const buffer =
     data instanceof ArrayBuffer ? data : await loadArrayBuffer(data);
