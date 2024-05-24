@@ -189,9 +189,9 @@ Load an Ultra HDR (aka gain map) file or array buffer as a texture
 **Kind**: global typedef
 **Properties**
 
-| Name   | Type                | Default           | Description                                        |
-| ------ | ------------------- | ----------------- | -------------------------------------------------- |
-| [type] | <code>number</code> | <code>1016</code> | Half Float WebGL type. Also supports Float (1015). |
+| Name   | Type                | Default           | Description                                      |
+| ------ | ------------------- | ----------------- | ------------------------------------------------ |
+| [type] | <code>number</code> | <code>1015</code> | Float or Half Float WebGL type. (1015 for Float) |
 
 <a name="Ktx2Options"></a>
 

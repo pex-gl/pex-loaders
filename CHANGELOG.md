@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/pex-gl/pex-loaders/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2024-05-24)
+
+
+### Features
+
+* add parse-exr ([36e370b](https://github.com/pex-gl/pex-loaders/commit/36e370b8a5746de61864e857ba07d1bece86ec6a))
+
+
+
 # [1.0.0-alpha.3](https://github.com/pex-gl/pex-loaders/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2024-05-15)
 
 
