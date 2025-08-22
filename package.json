@@ -41,11 +41,11 @@
   "dependencies": {
     "fflate": "^0.8.2",
     "ktx-parse": "^0.7.0",
-    "parse-exr": "^1.0.1",
+    "parse-exr": "^1.0.2",
     "parse-hdr": "^1.0.0",
     "pex-io": "^3.0.2",
-    "pex-math": "^4.1.1",
-    "pex-shaders": "^1.0.0-alpha.31",
+    "pex-math": "^4.1.2",
+    "pex-shaders": "^1.0.0",
     "zstddec": "^0.1.0"
   },
   "engines": {
