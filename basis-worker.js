@@ -46,7 +46,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
                 data,
                 internalFormat,
               },
-              buffers
+              buffers,
             );
           } catch (error) {
             // eslint-disable-next-line no-console
@@ -70,7 +70,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
       basisFormat,
       width,
       height,
-      hasAlpha
+      hasAlpha,
     );
 
     const blockByteLength =
@@ -99,7 +99,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
           endpointCount,
           endpointsData,
           selectorCount,
-          selectorsData
+          selectorsData,
         );
         if (!status) throw new Error("BasisWorker: decodePalettes() failed.");
 
@@ -112,7 +112,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
           const dstByteLength = getTranscodedImageByteLength(
             transcoderFormat,
             level.width,
-            level.height
+            level.height,
           );
           const dst = new Uint8Array(dstByteLength);
 
@@ -134,12 +134,12 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
             hasAlpha,
             false,
             0,
-            0
+            0,
           );
 
           if (!status) {
             throw new Error(
-              `BasisWorker: transcodeImage() failed for level ${level.index}.`
+              `BasisWorker: transcodeImage() failed for level ${level.index}.`,
             );
           }
 
@@ -157,7 +157,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
         const dstByteLength = getTranscodedImageByteLength(
           transcoderFormat,
           level.width,
-          level.height
+          level.height,
         );
         const dst = new Uint8Array(dstByteLength);
 
@@ -179,12 +179,12 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
           0,
           0,
           -1,
-          -1
+          -1,
         );
 
         if (!status) {
           throw new Error(
-            `BasisWorker: transcodeUASTCImage() failed for level ${level.index}.`
+            `BasisWorker: transcodeUASTCImage() failed for level ${level.index}.`,
           );
         }
 
@@ -213,7 +213,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
       basisFormat,
       width,
       height,
-      hasAlpha
+      hasAlpha,
     );
 
     if (!width || !height || !levels) {
@@ -232,7 +232,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
       const mipWidth = basisFile.getImageWidth(0, mip);
       const mipHeight = basisFile.getImageHeight(0, mip);
       const dst = new Uint8Array(
-        basisFile.getImageTranscodedSizeInBytes(0, mip, transcoderFormat)
+        basisFile.getImageTranscodedSizeInBytes(0, mip, transcoderFormat),
       );
 
       const status = basisFile.transcodeImage(
@@ -241,7 +241,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
         mip,
         transcoderFormat,
         0,
-        hasAlpha
+        hasAlpha,
       );
 
       if (!status) {
@@ -336,10 +336,10 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
   ];
 
   const ETC1S_OPTIONS = FORMAT_OPTIONS.sort(
-    (a, b) => a.priorityETC1S - b.priorityETC1S
+    (a, b) => a.priorityETC1S - b.priorityETC1S,
   );
   const UASTC_OPTIONS = FORMAT_OPTIONS.sort(
-    (a, b) => a.priorityUASTC - b.priorityUASTC
+    (a, b) => a.priorityUASTC - b.priorityUASTC,
   );
 
   function getTranscoderFormat(basisFormat, width, height, hasAlpha) {
@@ -362,7 +362,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
 
     // eslint-disable-next-line no-console
     console.warn(
-      "BasisWorker: No suitable compressed texture format found. Decoding to RGBA32."
+      "BasisWorker: No suitable compressed texture format found. Decoding to RGBA32.",
     );
 
     transcoderFormat = TranscoderFormat.RGBA32;
@@ -377,7 +377,7 @@ function BasisWorker(InternalFormat, TranscoderFormat, { ETC1S, UASTC_4x4 }) {
 
   function getHeightInBlocks(transcoderFormat, height) {
     return Math.ceil(
-      height / BasisModule.getFormatBlockHeight(transcoderFormat)
+      height / BasisModule.getFormatBlockHeight(transcoderFormat),
     );
   }
 

@@ -24,7 +24,7 @@ const getTranscoder = async (transcoderPath) =>
       await (await fetch(`${transcoderPath}draco_wasm_wrapper.js`)).text(),
       await (
         await (await fetch(`${transcoderPath}draco-worker.js`)).text()
-      ).replace("module.exports = DracoWorker", "")
+      ).replace("module.exports = DracoWorker", ""),
       // DracoWorker.toString()
     ),
     await (await fetch(`${transcoderPath}draco_decoder.wasm`)).arrayBuffer(),
@@ -72,10 +72,23 @@ function loadGeometry(buffer, taskConfig) {
   return geometryPending;
 }
 
-// Load
+/**
+ * @typedef DracoOptions
+ * @property {string} [transcoderPath='assets/decoders/draco/']
+ * @property {object} [transcodeConfig={}]
+ * @property {number} [workerLimit=4]
+ * @property {object} [workerConfig={}]
+ */
+
+/**
+ * Load a draco file or array buffer as a texture
+ * @alias module:pex-loaders.loadDraco
+ * @param {string | ArrayBuffer} data
+ * @param {DracoOptions} [options]
+ * @returns {Promise<object>}
+ */
 async function loadDraco(
   data,
-  gl,
   {
     transcoderPath = "assets/decoders/draco/",
     transcodeConfig = {
@@ -96,7 +109,7 @@ async function loadDraco(
 
     workerLimit,
     workerConfig,
-  } = {}
+  } = {},
 ) {
   if (!workerPool) workerPool = new WorkerPool(workerLimit, workerConfig);
 
@@ -104,7 +117,7 @@ async function loadDraco(
 
   return await loadGeometry(
     data instanceof ArrayBuffer ? data : await loadArrayBuffer(data),
-    transcodeConfig
+    transcodeConfig,
   );
 }
 

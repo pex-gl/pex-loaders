@@ -65,7 +65,7 @@ const getTranscoder = async (transcoderPath) =>
       await (await fetch(`${transcoderPath}basis_transcoder.js`)).text(),
       await (
         await (await fetch(`${transcoderPath}basis-worker.js`)).text()
-      ).replace("module.exports = BasisWorker", "")
+      ).replace("module.exports = BasisWorker", ""),
       // BasisWorker.toString()
     ),
     await (await fetch(`${transcoderPath}basis_transcoder.wasm`)).arrayBuffer(),
@@ -73,6 +73,7 @@ const getTranscoder = async (transcoderPath) =>
 
 // Texture creation
 const loadCompressedTexture = async (buffers, taskConfig = {}) => {
+  // eslint-disable-next-line no-unused-vars
   const { globalData, levels, ...taskConfigForCache } = taskConfig;
   const taskKey = JSON.stringify(taskConfigForCache);
 
@@ -102,11 +103,12 @@ const loadCompressedTexture = async (buffers, taskConfig = {}) => {
             taskConfig,
             buffers,
           },
-          buffers
+          buffers,
         );
       });
     })
     .then((message) => {
+      // eslint-disable-next-line no-unused-vars
       const { type, id, hasAlpha, ...texture } = message;
 
       return {
@@ -132,11 +134,26 @@ const loadCompressedTexture = async (buffers, taskConfig = {}) => {
   return texturePending;
 };
 
-// Load
+/**
+ * @typedef BasisOptions
+ * @property {WebGLRenderingContext | WebGL2RenderingContext} gl
+ * @property {string} [transcoderPath='assets/decoders/basis/']
+ * @property {object} [transcodeConfig={}]
+ * @property {number} [workerLimit=4]
+ * @property {object} [workerConfig={ astcSupported, etc1Supported, etc2Supported, dxtSupported, bptcSupported, pvrtcSupported }]
+ */
+
+/**
+ * Load a basis file or array buffer as texture options
+ * @alias module:pex-loaders.loadBasis
+ * @param {string | ArrayBuffer} data
+ * @param {BasisOptions} [options]
+ * @returns {Promise<object>}
+ */
 async function loadBasis(
   data,
-  gl,
   {
+    gl,
     transcoderPath = "assets/decoders/basis/",
     transcodeConfig = {},
     workerLimit,
@@ -150,7 +167,7 @@ async function loadBasis(
         !!gl.getExtension("WEBGL_compressed_texture_pvrtc") ||
         !!gl.getExtension("WEBKIT_WEBGL_compressed_texture_pvrtc"),
     },
-  } = {}
+  } = {},
 ) {
   if (!workerPool) workerPool = new WorkerPool(workerLimit, workerConfig);
 
@@ -161,8 +178,8 @@ async function loadBasis(
   const buffers = hasManyBuffers
     ? data
     : data instanceof ArrayBuffer
-    ? [data]
-    : [await loadArrayBuffer(data)];
+      ? [data]
+      : [await loadArrayBuffer(data)];
 
   return await loadCompressedTexture(buffers, transcodeConfig);
 }
