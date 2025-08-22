@@ -1,6 +1,6 @@
 {
   "name": "pex-loaders",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0",
   "description": "Resource loader for PEX.",
   "keywords": [
     "pex",
@@ -18,7 +18,10 @@
   ],
   "homepage": "https://github.com/pex-gl/pex-loaders",
   "bugs": "https://github.com/pex-gl/pex-loaders/issues",
-  "repository": "pex-gl/pex-loaders",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pex-gl/pex-loaders.git"
+  },
   "license": "MIT",
   "author": "Damien Seguin (https://github.com/dmnsgn)",
   "contributors": [

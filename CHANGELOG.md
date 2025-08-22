@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0](https://github.com/pex-gl/pex-loaders/compare/v1.0.0-alpha.4...v1.0.0) (2025-08-22)
+
+
+
 # [1.0.0-alpha.4](https://github.com/pex-gl/pex-loaders/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2024-05-24)
 
 
