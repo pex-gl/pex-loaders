@@ -21,7 +21,16 @@ npm install pex-loaders
 ## Usage
 
 ```js
-import { loadUltraHdr, loadHdr, loadExr } from "pex-loaders";
+import {
+  loadUltraHdr,
+  loadHdr,
+  loadExr,
+  loadDraco,
+  loadKtx2,
+} from "pex-loaders";
+import createContext from "pex-context";
+
+const ctx = createContext();
 
 const getEnvMap = async (ctx, url) => {
   if (url.endsWith(".jpg")) return await loadUltraHdr(ctx, url);
@@ -29,6 +38,21 @@ const getEnvMap = async (ctx, url) => {
   if (url.endsWith(".exr")) return await loadExr(ctx, url);
 
   throw new Error("Unsupported env map file type");
+};
+
+const loadDracoGeometry = async (urlOrArrayBuffer) => {
+  return await loadDraco(urlOrArrayBuffer, {
+    transcoderPath: "assets/decoders/draco/",
+  });
+};
+
+const loadKtxTexture = async (ctx, urlOrArrayBuffer) => {
+  return await loadKtx2(urlOrArrayBuffer, {
+    basisOptions: {
+      gl: ctx.gl,
+      transcoderPath: "assets/decoders/basis/",
+    },
+  });
 };
 ```
 
