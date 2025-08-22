@@ -39,7 +39,6 @@
     "release": "snowdev release"
   },
   "dependencies": {
-    "fflate": "^0.8.2",
     "ktx-parse": "^0.7.0",
     "parse-exr": "^1.0.2",
     "parse-hdr": "^1.0.0",
