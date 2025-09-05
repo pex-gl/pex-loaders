@@ -27,7 +27,6 @@ async function loadExr(ctx, data, options, texture) {
   texture ||= ctx.texture2D({
     width: 1,
     height: 1,
-    encoding: ctx.Encoding.Linear,
     pixelFormat: ctx.PixelFormat[isHalfFloat ? "RGBA16F" : "RGBA32F"],
     min: ctx.Filter.Linear,
     mag: ctx.Filter.Linear,

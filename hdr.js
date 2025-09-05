@@ -17,7 +17,6 @@ async function loadHdr(ctx, data, texture) {
 
   texture ||= ctx.texture2D({
     pixelFormat: ctx.PixelFormat.RGBA32F,
-    encoding: ctx.Encoding.Linear,
     min: ctx.Filter.Linear,
     mag: ctx.Filter.Linear,
     flipY: true,

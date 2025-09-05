@@ -279,7 +279,6 @@ async function loadUltraHdr(ctx, data, texture) {
   const sdr = ctx.texture2D({
     data: sdrImage,
     pixelFormat: ctx.PixelFormat.SRGB8,
-    encoding: ctx.Encoding.Linear,
     mag: ctx.Filter.Linear,
     min: ctx.Filter.Linear,
   });
@@ -289,7 +288,6 @@ async function loadUltraHdr(ctx, data, texture) {
     width: gainMapImage.width,
     height: gainMapImage.height,
     pixelFormat: ctx.PixelFormat.RGBA8,
-    encoding: ctx.Encoding.Linear,
     mag: ctx.Filter.Linear,
     min: ctx.Filter.LinearMipmapLinear,
     mipmap: true,
@@ -298,7 +296,6 @@ async function loadUltraHdr(ctx, data, texture) {
   // Render
   texture ||= ctx.texture2D({
     pixelFormat: ctx.PixelFormat.RGBA16F,
-    encoding: ctx.Encoding.Linear,
     min: ctx.Filter.Linear,
     mag: ctx.Filter.Linear,
   });

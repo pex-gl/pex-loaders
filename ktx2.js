@@ -150,7 +150,7 @@ async function loadKtx2(data, { basisOptions = {} } = {}) {
       .then((texture) => ({
         ...texture,
         // srgb or linear
-        encoding: dfd.transferFunction === KHR_DF_TRANSFER_SRGB ? 3 : 1,
+        // encoding: dfd.transferFunction === KHR_DF_TRANSFER_SRGB ? 3 : 1,
         premultiplyAlpha: !!(dfd.flags & KHR_DF_FLAG_ALPHA_PREMULTIPLIED),
       }))
   );
