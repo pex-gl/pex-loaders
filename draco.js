@@ -22,9 +22,9 @@ const getTranscoder = async (transcoderPath) =>
   Promise.all([
     getWorkerStringUrl(
       await (await fetch(`${transcoderPath}draco_wasm_wrapper.js`)).text(),
-      await (
-        await (await fetch(`${transcoderPath}draco-worker.js`)).text()
-      ).replace("module.exports = DracoWorker", ""),
+      await (await (await fetch(`${transcoderPath}draco-worker.js`)).text())
+        .replace("module.exports = DracoWorker", "")
+        .replace("export default DracoWorker;", ""),
       // DracoWorker.toString()
     ),
     await (await fetch(`${transcoderPath}draco_decoder.wasm`)).arrayBuffer(),

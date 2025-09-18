@@ -63,9 +63,9 @@ const getTranscoder = async (transcoderPath) =>
   Promise.all([
     getWorkerStringUrl(
       await (await fetch(`${transcoderPath}basis_transcoder.js`)).text(),
-      await (
-        await (await fetch(`${transcoderPath}basis-worker.js`)).text()
-      ).replace("module.exports = BasisWorker", ""),
+      await (await (await fetch(`${transcoderPath}basis-worker.js`)).text())
+        .replace("module.exports = BasisWorker", "")
+        .replace("export default BasisWorker;", ""),
       // BasisWorker.toString()
     ),
     await (await fetch(`${transcoderPath}basis_transcoder.wasm`)).arrayBuffer(),
