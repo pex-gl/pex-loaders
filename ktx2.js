@@ -124,6 +124,8 @@ async function loadKtx2(data, { basisOptions = {} } = {}) {
     width: ktx.pixelWidth,
     height: ktx.pixelHeight,
     basisFormat,
+    colorSpace:
+      dfd.transferFunction === KHR_DF_TRANSFER_SRGB ? "srgb" : "linear",
     hasAlpha: getAlpha(dfd),
     lowLevel: true,
   };
@@ -149,8 +151,6 @@ async function loadKtx2(data, { basisOptions = {} } = {}) {
       // Add extra ktx props
       .then((texture) => ({
         ...texture,
-        // srgb or linear
-        // encoding: dfd.transferFunction === KHR_DF_TRANSFER_SRGB ? 3 : 1,
         premultiplyAlpha: !!(dfd.flags & KHR_DF_FLAG_ALPHA_PREMULTIPLIED),
       }))
   );

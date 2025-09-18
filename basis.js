@@ -8,6 +8,10 @@ let workerPool;
 const BasisFormat = {
   ETC1S: 0,
   UASTC_4x4: 1,
+  // UASTC4x4 = 1,
+  // UASTC_HDR_4x4 = 2,
+  // ASTC_HDR_6x6 = 3,
+  // ASTC_HDR_6x6_INTERMEDIATE = 4,
 };
 
 const TranscoderFormat = {
@@ -43,6 +47,78 @@ const InternalFormat = {
   RGB_PVRTC_4BPPV1_Format: 35840,
   RGB_S3TC_DXT1_Format: 33776,
 };
+
+const InternalFormatSRGB = {
+  // https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_s3tc_srgb/
+  COMPRESSED_SRGB_S3TC_DXT1_EXT: 0x8c4c,
+  COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT: 0x8c4d,
+  COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT: 0x8c4e,
+  COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT: 0x8c4f,
+
+  // https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc/
+  COMPRESSED_R11_EAC: 0x9270,
+  COMPRESSED_SIGNED_R11_EAC: 0x9271,
+  COMPRESSED_RG11_EAC: 0x9272,
+  COMPRESSED_SIGNED_RG11_EAC: 0x9273,
+  COMPRESSED_RGB8_ETC2: 0x9274,
+  COMPRESSED_SRGB8_ETC2: 0x9275,
+  COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2: 0x9276,
+  COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2: 0x9277,
+  COMPRESSED_RGBA8_ETC2_EAC: 0x9278,
+  COMPRESSED_SRGB8_ALPHA8_ETC2_EAC: 0x9279,
+
+  // https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/
+  COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR: 0x93d0,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR: 0x93d1,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR: 0x93d2,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR: 0x93d3,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR: 0x93d4,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR: 0x93d5,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR: 0x93d6,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR: 0x93d7,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR: 0x93d8,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR: 0x93d9,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR: 0x93da,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR: 0x93db,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR: 0x93dc,
+  // COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR: 0x93dd,
+
+  // https://registry.khronos.org/webgl/extensions/EXT_texture_compression_bptc/
+  COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT: 0x8e8d,
+};
+
+// prettier-ignore
+const InternalFormatToSRGB = {
+  // DXT
+  [InternalFormat.RGB_S3TC_DXT1_Format]: InternalFormatSRGB.COMPRESSED_SRGB_S3TC_DXT1_EXT,
+  [InternalFormat.RGBA_S3TC_DXT1_Format]: InternalFormatSRGB.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
+  [InternalFormat.RGBA_S3TC_DXT3_Format]: InternalFormatSRGB.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
+  [InternalFormat.RGBA_S3TC_DXT5_Format]: InternalFormatSRGB.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
+
+  // ETC
+  [InternalFormat.RGB_ETC1_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ETC2,
+  [InternalFormat.RGB_ETC2_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ETC2,
+  [InternalFormat.RGBA_ETC2_EAC_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC,
+
+  // ASTC
+  [InternalFormat.RGBA_ASTC_4x4_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR,
+  // [InternalFormat.RGBA_ASTC_5x4_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR,
+  // [InternalFormat.RGBA_ASTC_5x5_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR,
+  // [InternalFormat.RGBA_ASTC_6x5_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR,
+  // [InternalFormat.RGBA_ASTC_6x6_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR,
+  // [InternalFormat.RGBA_ASTC_8x5_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR,
+  // [InternalFormat.RGBA_ASTC_8x6_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR,
+  // [InternalFormat.RGBA_ASTC_8x8_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR,
+  // [InternalFormat.RGBA_ASTC_10x5_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR,
+  // [InternalFormat.RGBA_ASTC_10x6_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR,
+  // [InternalFormat.RGBA_ASTC_10x8_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR,
+  // [InternalFormat.RGBA_ASTC_10x10_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR,
+  // [InternalFormat.RGBA_ASTC_12x10_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR,
+  // [InternalFormat.RGBA_ASTC_12x12_Format]: InternalFormatSRGB.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR,
+
+  // BPTC
+  [InternalFormat.RGBA_BPTC_Format]: InternalFormatSRGB.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT,
+}
 
 // Decoder API
 let transcoderPending;
@@ -110,6 +186,17 @@ const loadCompressedTexture = async (buffers, taskConfig = {}) => {
     .then((message) => {
       // eslint-disable-next-line no-unused-vars
       const { type, id, hasAlpha, ...texture } = message;
+
+      if (taskConfig.colorSpace === "srgb") {
+        const srgbInternalFormat = InternalFormatToSRGB[texture.internalFormat];
+        if (srgbInternalFormat) {
+          texture.internalFormat = srgbInternalFormat;
+        } else {
+          console.warn(
+            `Missing SRGB conversion format for internalFormat "${texture.internalFormat}"`,
+          );
+        }
+      }
 
       return {
         compressed: texture.internalFormat !== InternalFormat.RGBAFormat,
