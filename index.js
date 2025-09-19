@@ -8,3 +8,10 @@ export { default as loadBasis, BasisFormat } from "./basis.js";
 export { default as loadUltraHdr } from "./ultra-hdr.js";
 export { default as loadHdr } from "./hdr.js";
 export { default as loadExr } from "./exr.js";
+
+/** @private */
+export { default as WorkerPool } from "./worker-pool.js";
+/** @private */
+export { default as BasisWorker } from "./decoders/basis/basis-worker.js";
+/** @private */
+export { default as DracoWorker } from "./decoders/draco/draco-worker.js";

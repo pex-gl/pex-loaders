@@ -37,7 +37,6 @@ class WorkerPool {
             worker._callbacks[message.id].reject(message);
             break;
           default:
-            // eslint-disable-next-line no-console
             console.error(message);
         }
       };
