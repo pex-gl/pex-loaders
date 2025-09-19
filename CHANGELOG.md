@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.2.0](https://github.com/pex-gl/pex-loaders/compare/v1.1.0...v1.2.0) (2025-09-19)
+
+
+### Features
+
+* expose worker pool decoders workers ([d20f401](https://github.com/pex-gl/pex-loaders/commit/d20f40175b0d397eefe5369292a110c1cc91d230))
+* handle srgb textures in ktx/basis ([f5bf102](https://github.com/pex-gl/pex-loaders/commit/f5bf10298f9feed588601b69e3afc216535b57b9))
+
+
+
 # [1.1.0](https://github.com/pex-gl/pex-loaders/compare/v1.0.0...v1.1.0) (2025-09-05)
 
 
