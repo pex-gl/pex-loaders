@@ -426,4 +426,4 @@ function BasisWorker(InternalFormat, TranscoderFormat, BasisFormat) {
   }
 }
 
-module.exports = BasisWorker;
+export default BasisWorker;
