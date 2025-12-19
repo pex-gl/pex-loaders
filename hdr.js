@@ -6,13 +6,15 @@ import parseHdr from "parse-hdr";
  * Load an HDR file or array buffer as a texture
  * @alias module:pex-loaders.loadHdr
  * @param {ctx} ctx
- * @param {string | ArrayBuffer} data
+ * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {ctx.texture2D} [texture] Optionally pass an already created texture resource.
  * @returns {Promise<ctx.texture2D>}
  */
-async function loadHdr(ctx, data, texture) {
+async function loadHdr(ctx, urlOrArrayBuffer, texture) {
   const parsed = parseHdr(
-    data instanceof ArrayBuffer ? data : await loadArrayBuffer(data),
+    urlOrArrayBuffer instanceof ArrayBuffer
+      ? urlOrArrayBuffer
+      : await loadArrayBuffer(urlOrArrayBuffer),
   );
 
   texture ||= ctx.texture2D({

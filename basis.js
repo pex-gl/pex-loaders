@@ -233,12 +233,12 @@ const loadCompressedTexture = async (buffers, taskConfig = {}) => {
 /**
  * Load a basis file or array buffer as texture options
  * @alias module:pex-loaders.loadBasis
- * @param {string | ArrayBuffer} data
+ * @param {string | ArrayBuffer | ArrayBuffer[]} urlOrArrayBuffer
  * @param {BasisOptions} [options]
  * @returns {Promise<object>}
  */
 async function loadBasis(
-  data,
+  urlOrArrayBuffer,
   {
     gl,
     transcoderPath = "assets/decoders/basis/",
@@ -260,13 +260,13 @@ async function loadBasis(
 
   transcoderPending = getTranscoder(transcoderPath);
 
-  const hasManyBuffers = Array.isArray(data);
+  const hasManyBuffers = Array.isArray(urlOrArrayBuffer);
 
   const buffers = hasManyBuffers
-    ? data
-    : data instanceof ArrayBuffer
-      ? [data]
-      : [await loadArrayBuffer(data)];
+    ? urlOrArrayBuffer
+    : urlOrArrayBuffer instanceof ArrayBuffer
+      ? [urlOrArrayBuffer]
+      : [await loadArrayBuffer(urlOrArrayBuffer)];
 
   return await loadCompressedTexture(buffers, transcodeConfig);
 }

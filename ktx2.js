@@ -56,13 +56,15 @@ const getAlpha = ({ colorModel, samples }) => {
  * - KTX: http://github.khronos.org/KTX-Specification/
  * - DFD: https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.html#basicdescriptor
  * @alias module:pex-loaders.loadKtx2
- * @param {string | ArrayBuffer} data
+ * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {Ktx2Options} [options]
  * @returns {Promise<object>}
  */
-async function loadKtx2(data, { basisOptions = {} } = {}) {
+async function loadKtx2(urlOrArrayBuffer, { basisOptions = {} } = {}) {
   const buffer =
-    data instanceof ArrayBuffer ? data : await loadArrayBuffer(data);
+    urlOrArrayBuffer instanceof ArrayBuffer
+      ? urlOrArrayBuffer
+      : await loadArrayBuffer(urlOrArrayBuffer);
 
   const ktx = readKTX(new Uint8Array(buffer));
 

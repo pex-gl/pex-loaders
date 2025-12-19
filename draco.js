@@ -83,12 +83,12 @@ function loadGeometry(buffer, taskConfig) {
 /**
  * Load a draco file or array buffer as a texture
  * @alias module:pex-loaders.loadDraco
- * @param {string | ArrayBuffer} data
+ * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {DracoOptions} [options]
  * @returns {Promise<object>}
  */
 async function loadDraco(
-  data,
+  urlOrArrayBuffer,
   {
     transcoderPath = "assets/decoders/draco/",
     transcodeConfig = {
@@ -116,7 +116,9 @@ async function loadDraco(
   transcoderPending = getTranscoder(transcoderPath);
 
   return await loadGeometry(
-    data instanceof ArrayBuffer ? data : await loadArrayBuffer(data),
+    urlOrArrayBuffer instanceof ArrayBuffer
+      ? urlOrArrayBuffer
+      : await loadArrayBuffer(urlOrArrayBuffer),
     transcodeConfig,
   );
 }

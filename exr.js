@@ -10,17 +10,19 @@ import parseExr from "parse-exr";
  * Load an EXR file or array buffer as a texture
  * @alias module:pex-loaders.loadExr
  * @param {ctx} ctx
- * @param {string | ArrayBuffer} data
+ * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {ExrOptions} [options]
  * @param {ctx.texture2D} [texture] Optionally pass an already created texture resource.
  * @returns {Promise<ctx.texture2D>}
  */
-async function loadExr(ctx, data, options, texture) {
+async function loadExr(ctx, urlOrArrayBuffer, options, texture) {
   const outputType = options?.type || 1015;
   const isHalfFloat = outputType === 1016;
 
   const parsed = parseExr(
-    data instanceof ArrayBuffer ? data : await loadArrayBuffer(data),
+    urlOrArrayBuffer instanceof ArrayBuffer
+      ? urlOrArrayBuffer
+      : await loadArrayBuffer(urlOrArrayBuffer),
     outputType,
   );
 

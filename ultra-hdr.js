@@ -244,13 +244,15 @@ const extractXMP = (input) => {
  * Load an Ultra HDR (aka gain map) file or array buffer as a texture
  * @alias module:pex-loaders.loadUltraHdr
  * @param {ctx} ctx
- * @param {string | ArrayBuffer} data
+ * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {ctx.texture2D} [texture] Optionally pass an already created texture resource.
  * @returns {Promise<ctx.texture2D>}
  */
-async function loadUltraHdr(ctx, data, texture) {
+async function loadUltraHdr(ctx, urlOrArrayBuffer, texture) {
   const jpegBuffer = new Uint8Array(
-    data instanceof ArrayBuffer ? data : await loadArrayBuffer(data),
+    urlOrArrayBuffer instanceof ArrayBuffer
+      ? urlOrArrayBuffer
+      : await loadArrayBuffer(urlOrArrayBuffer),
   );
 
   // Decode the files into the textures
