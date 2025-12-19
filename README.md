@@ -85,71 +85,71 @@ const loadKtxTexture = async (ctx, urlOrArrayBuffer) => {
 ## pex-loaders
 
 - [pex-loaders](#module_pex-loaders)
-  - [.loadBasis(data, [options])](#module_pex-loaders.loadBasis) ⇒ <code>Promise.&lt;object&gt;</code>
-  - [.loadDraco(data, [options])](#module_pex-loaders.loadDraco) ⇒ <code>Promise.&lt;object&gt;</code>
-  - [.loadExr(ctx, data, [options], [texture])](#module_pex-loaders.loadExr) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
-  - [.loadHdr(ctx, data, [texture])](#module_pex-loaders.loadHdr) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
-  - [.loadKtx2(data, [options])](#module_pex-loaders.loadKtx2) ⇒ <code>Promise.&lt;object&gt;</code>
-  - [.loadUltraHdr(ctx, data, [texture])](#module_pex-loaders.loadUltraHdr) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
+  - [.loadBasis(urlOrArrayBuffer, [options])](#module_pex-loaders.loadBasis) ⇒ <code>Promise.&lt;object&gt;</code>
+  - [.loadDraco(urlOrArrayBuffer, [options])](#module_pex-loaders.loadDraco) ⇒ <code>Promise.&lt;object&gt;</code>
+  - [.loadExr(ctx, urlOrArrayBuffer, [options], [texture])](#module_pex-loaders.loadExr) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
+  - [.loadHdr(ctx, urlOrArrayBuffer, [texture])](#module_pex-loaders.loadHdr) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
+  - [.loadKtx2(urlOrArrayBuffer, [options])](#module_pex-loaders.loadKtx2) ⇒ <code>Promise.&lt;object&gt;</code>
+  - [.loadUltraHdr(ctx, urlOrArrayBuffer, [texture])](#module_pex-loaders.loadUltraHdr) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
 
 <a name="module_pex-loaders.loadBasis"></a>
 
-### pex-loaders.loadBasis(data, [options]) ⇒ <code>Promise.&lt;object&gt;</code>
+### pex-loaders.loadBasis(urlOrArrayBuffer, [options]) ⇒ <code>Promise.&lt;object&gt;</code>
 
 Load a basis file or array buffer as texture options
 
 **Kind**: static method of [<code>pex-loaders</code>](#module_pex-loaders)
 
-| Param     | Type                                            |
-| --------- | ----------------------------------------------- |
-| data      | <code>string</code> \| <code>ArrayBuffer</code> |
-| [options] | [<code>BasisOptions</code>](#BasisOptions)      |
+| Param            | Type                                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------- |
+| urlOrArrayBuffer | <code>string</code> \| <code>ArrayBuffer</code> \| <code>Array.&lt;ArrayBuffer&gt;</code> |
+| [options]        | [<code>BasisOptions</code>](#BasisOptions)                                                |
 
 <a name="module_pex-loaders.loadDraco"></a>
 
-### pex-loaders.loadDraco(data, [options]) ⇒ <code>Promise.&lt;object&gt;</code>
+### pex-loaders.loadDraco(urlOrArrayBuffer, [options]) ⇒ <code>Promise.&lt;object&gt;</code>
 
 Load a draco file or array buffer as a texture
 
 **Kind**: static method of [<code>pex-loaders</code>](#module_pex-loaders)
 
-| Param     | Type                                            |
-| --------- | ----------------------------------------------- |
-| data      | <code>string</code> \| <code>ArrayBuffer</code> |
-| [options] | [<code>DracoOptions</code>](#DracoOptions)      |
+| Param            | Type                                            |
+| ---------------- | ----------------------------------------------- |
+| urlOrArrayBuffer | <code>string</code> \| <code>ArrayBuffer</code> |
+| [options]        | [<code>DracoOptions</code>](#DracoOptions)      |
 
 <a name="module_pex-loaders.loadExr"></a>
 
-### pex-loaders.loadExr(ctx, data, [options], [texture]) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
+### pex-loaders.loadExr(ctx, urlOrArrayBuffer, [options], [texture]) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
 
 Load an EXR file or array buffer as a texture
 
 **Kind**: static method of [<code>pex-loaders</code>](#module_pex-loaders)
 
-| Param     | Type                                            | Description                                          |
-| --------- | ----------------------------------------------- | ---------------------------------------------------- |
-| ctx       | <code>ctx</code>                                |                                                      |
-| data      | <code>string</code> \| <code>ArrayBuffer</code> |                                                      |
-| [options] | [<code>ExrOptions</code>](#ExrOptions)          |                                                      |
-| [texture] | <code>ctx.texture2D</code>                      | Optionally pass an already created texture resource. |
+| Param            | Type                                            | Description                                          |
+| ---------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| ctx              | <code>ctx</code>                                |                                                      |
+| urlOrArrayBuffer | <code>string</code> \| <code>ArrayBuffer</code> |                                                      |
+| [options]        | [<code>ExrOptions</code>](#ExrOptions)          |                                                      |
+| [texture]        | <code>ctx.texture2D</code>                      | Optionally pass an already created texture resource. |
 
 <a name="module_pex-loaders.loadHdr"></a>
 
-### pex-loaders.loadHdr(ctx, data, [texture]) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
+### pex-loaders.loadHdr(ctx, urlOrArrayBuffer, [texture]) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
 
 Load an HDR file or array buffer as a texture
 
 **Kind**: static method of [<code>pex-loaders</code>](#module_pex-loaders)
 
-| Param     | Type                                            | Description                                          |
-| --------- | ----------------------------------------------- | ---------------------------------------------------- |
-| ctx       | <code>ctx</code>                                |                                                      |
-| data      | <code>string</code> \| <code>ArrayBuffer</code> |                                                      |
-| [texture] | <code>ctx.texture2D</code>                      | Optionally pass an already created texture resource. |
+| Param            | Type                                            | Description                                          |
+| ---------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| ctx              | <code>ctx</code>                                |                                                      |
+| urlOrArrayBuffer | <code>string</code> \| <code>ArrayBuffer</code> |                                                      |
+| [texture]        | <code>ctx.texture2D</code>                      | Optionally pass an already created texture resource. |
 
 <a name="module_pex-loaders.loadKtx2"></a>
 
-### pex-loaders.loadKtx2(data, [options]) ⇒ <code>Promise.&lt;object&gt;</code>
+### pex-loaders.loadKtx2(urlOrArrayBuffer, [options]) ⇒ <code>Promise.&lt;object&gt;</code>
 
 Load a ktx2 file or array buffer as texture options
 
@@ -158,24 +158,24 @@ Load a ktx2 file or array buffer as texture options
 
 **Kind**: static method of [<code>pex-loaders</code>](#module_pex-loaders)
 
-| Param     | Type                                            |
-| --------- | ----------------------------------------------- |
-| data      | <code>string</code> \| <code>ArrayBuffer</code> |
-| [options] | [<code>Ktx2Options</code>](#Ktx2Options)        |
+| Param            | Type                                            |
+| ---------------- | ----------------------------------------------- |
+| urlOrArrayBuffer | <code>string</code> \| <code>ArrayBuffer</code> |
+| [options]        | [<code>Ktx2Options</code>](#Ktx2Options)        |
 
 <a name="module_pex-loaders.loadUltraHdr"></a>
 
-### pex-loaders.loadUltraHdr(ctx, data, [texture]) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
+### pex-loaders.loadUltraHdr(ctx, urlOrArrayBuffer, [texture]) ⇒ <code>Promise.&lt;ctx.texture2D&gt;</code>
 
 Load an Ultra HDR (aka gain map) file or array buffer as a texture
 
 **Kind**: static method of [<code>pex-loaders</code>](#module_pex-loaders)
 
-| Param     | Type                                            | Description                                          |
-| --------- | ----------------------------------------------- | ---------------------------------------------------- |
-| ctx       | <code>ctx</code>                                |                                                      |
-| data      | <code>string</code> \| <code>ArrayBuffer</code> |                                                      |
-| [texture] | <code>ctx.texture2D</code>                      | Optionally pass an already created texture resource. |
+| Param            | Type                                            | Description                                          |
+| ---------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| ctx              | <code>ctx</code>                                |                                                      |
+| urlOrArrayBuffer | <code>string</code> \| <code>ArrayBuffer</code> |                                                      |
+| [texture]        | <code>ctx.texture2D</code>                      | Optionally pass an already created texture resource. |
 
 <a name="BasisOptions"></a>
 

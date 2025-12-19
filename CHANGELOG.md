@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.1](https://github.com/pex-gl/pex-loaders/compare/v1.2.0...v1.2.1) (2025-12-19)
+
+
+### Bug Fixes
+
+* use export default for BasisWorker ([7dd8963](https://github.com/pex-gl/pex-loaders/commit/7dd896363d2d897d751f3550400ee8cfb67b7585))
+
+
+
 # [1.2.0](https://github.com/pex-gl/pex-loaders/compare/v1.1.0...v1.2.0) (2025-09-19)
 
 
