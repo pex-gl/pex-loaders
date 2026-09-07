@@ -40,11 +40,8 @@ const getEnvMap = async (ctx, url) => {
   throw new Error("Unsupported env map file type");
 };
 
-const loadDracoGeometry = async (urlOrArrayBuffer) => {
-  return await loadDraco(urlOrArrayBuffer, {
-    transcoderPath: "assets/decoders/draco/",
-  });
-};
+const loadDracoGeometry = async (urlOrArrayBuffer) =>
+  await loadDraco(urlOrArrayBuffer);
 
 const loadKtxTexture = async (ctx, urlOrArrayBuffer) => {
   return await loadKtx2(urlOrArrayBuffer, {

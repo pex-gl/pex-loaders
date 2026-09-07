@@ -2,125 +2,149 @@ import { loadArrayBuffer } from "pex-io";
 
 import WorkerPool from "./worker-pool.js";
 
-let workerPool;
+// Resolved as package-relative assets so the vendored decoder works unbundled
+// and is picked up as an asset by bundlers, with no copy step. Named after
+// Draco's own web layout so `transcoderPath` can point at a CDN mirror such as
+// https://www.gstatic.com/draco/versioned/decoders/1.5.7/ instead.
+const WORKER_URL = new URL("./decoders/draco/draco-worker.js", import.meta.url);
+const WRAPPER_URL = new URL(
+  "./decoders/draco/draco_wasm_wrapper.js",
+  import.meta.url,
+);
+const WASM_URL = new URL(
+  "./decoders/draco/draco_decoder.wasm",
+  import.meta.url,
+);
 
-// Decoder API
-let transcoderPending;
-
-const getWorkerStringUrl = (transcoder, worker) => {
-  const str = `
-${transcoder}
-${worker}
-DracoWorker()
-`;
-  return URL.createObjectURL(new Blob([str]));
+// Suits standalone .drc files, which identify attributes by Draco's five
+// named types. glTF does not: KHR_draco_mesh_compression carries explicit
+// unique IDs per semantic, so that path replaces this config wholesale and
+// sets useUniqueIDs.
+const DEFAULT_TRANSCODE_CONFIG = {
+  attributeIDs: {
+    positions: "POSITION",
+    normals: "NORMAL",
+    texCoords: "TEX_COORD",
+    colors: "COLOR",
+  },
+  attributeTypes: {
+    positions: "Float32Array",
+    normals: "Float32Array",
+    texCoords: "Float32Array",
+    colors: "Float32Array",
+  },
+  useUniqueIDs: false,
 };
 
-// TODO: draco_decoder.js only
-const getTranscoder = async (transcoderPath) =>
-  transcoderPending ||
-  Promise.all([
-    getWorkerStringUrl(
-      await (await fetch(`${transcoderPath}draco_wasm_wrapper.js`)).text(),
-      await (await (await fetch(`${transcoderPath}draco-worker.js`)).text())
-        .replace("module.exports = DracoWorker", "")
-        .replace("export default DracoWorker;", ""),
-      // DracoWorker.toString()
-    ),
-    await (await fetch(`${transcoderPath}draco_decoder.wasm`)).arrayBuffer(),
-  ]);
+// Pools are keyed by the configuration that defines them, so a second call
+// with a different transcoder or worker limit gets its own pool instead of
+// silently reusing the first one's.
+const pools = new Map();
 
-function loadGeometry(buffer, taskConfig) {
-  const taskKey = JSON.stringify(taskConfig);
+// The worker resolves `wrapperUrl` against its own location, not the page's,
+// so every URL has to be absolute by the time it is posted.
+const resolve = (path, fallback) =>
+  path ? new URL(path, globalThis.location?.href).href : fallback.href;
 
-  const cachedTask = workerPool.hasTask(taskKey, buffer);
-  if (cachedTask) return cachedTask;
+function getPool({ transcoderPath, workerPath, workerLimit }) {
+  const poolKey = `${transcoderPath ?? ""}|${workerPath ?? ""}|${workerLimit ?? ""}`;
+  let pool = pools.get(poolKey);
+  if (pool) return pool;
 
-  let worker;
-  let taskId;
+  const workerUrl = resolve(workerPath, WORKER_URL);
+  const wrapperUrl = resolve(
+    transcoderPath && `${transcoderPath}draco_wasm_wrapper.js`,
+    WRAPPER_URL,
+  );
+  const wasmUrl = resolve(
+    transcoderPath && `${transcoderPath}draco_decoder.wasm`,
+    WASM_URL,
+  );
 
-  const geometryPending = workerPool
-    .getWorker(transcoderPending, buffer.byteLength)
-    .then((workerData) => {
-      ({ worker, taskId } = workerData);
+  // Fetched once and structured-cloned to each worker, rather than refetched
+  // per worker.
+  let wasmPending;
 
-      return new Promise((resolve, reject) => {
-        worker._callbacks[taskId] = { resolve, reject };
-
-        worker.postMessage({ type: "decode", id: taskId, taskConfig, buffer }, [
-          buffer,
-        ]);
+  pool = new WorkerPool({
+    workerLimit,
+    createWorker: async () => {
+      wasmPending ??= loadArrayBuffer(wasmUrl);
+      const worker = new Worker(workerUrl);
+      worker.postMessage({
+        type: "init",
+        config: { wrapperUrl, wasmBinary: await wasmPending },
       });
-    })
-    .then(({ geometry }) => geometry);
-
-  // Remove task from the task list.
-  geometryPending
-    .catch(() => true)
-    .then(() => {
-      if (worker && taskId) {
-        workerPool.releaseTask(worker, taskId);
-      }
-    });
-
-  // Cache the task result.
-  workerPool.taskCache.set(buffer, {
-    key: taskKey,
-    promise: geometryPending,
+      return worker;
+    },
   });
 
-  return geometryPending;
+  pools.set(poolKey, pool);
+  return pool;
 }
 
 /**
- * @typedef DracoOptions
- * @property {string} [transcoderPath='assets/decoders/draco/']
- * @property {object} [transcodeConfig={}]
- * @property {number} [workerLimit=4]
- * @property {object} [workerConfig={}]
+ * @typedef {object} DracoOptions
+ * @property {string} [transcoderPath] Directory holding `draco_wasm_wrapper.js` and `draco_decoder.wasm`, with a trailing slash. Defaults to the decoder vendored alongside this package.
+ * @property {string} [workerPath] Path to `draco-worker.js` — a file, not a directory, since bundlers emit it under a hashed name. Defaults to the worker vendored alongside this package.
+ * @property {object} [transcodeConfig] Draco attribute mapping: `attributeIDs`, `attributeTypes` (TypedArray constructor names) and `useUniqueIDs`. Set `useUniqueIDs` for glTF-sourced buffers, which identify attributes by unique ID rather than semantic name.
+ * @property {number} [workerLimit=4] Maximum number of concurrent decoder workers.
  */
 
 /**
- * Load a draco file or array buffer as a texture
- * @alias module:pex-loaders.loadDraco
+ * @typedef {object} DracoAttribute
+ * @property {import("./worker-pool.js").TypedArray} data
+ * @property {number} itemSize Components per element.
+ */
+
+/**
+ * Load a Draco file (.drc) or array buffer as geometry attributes.
+ *
+ * Decoding runs in a pool of workers and the geometry buffers are transferred
+ * back, not copied. Returns plain typed arrays: creating GPU buffers from them
+ * is left to the caller.
+ *
  * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {DracoOptions} [options]
- * @returns {Promise<object>}
+ * @returns {Promise<Record<string, DracoAttribute>>} One entry per decoded attribute, plus `indices` for meshes.
+ * @alias module:pex-loaders.loadDraco
  */
-async function loadDraco(
-  urlOrArrayBuffer,
-  {
-    transcoderPath = "assets/decoders/draco/",
-    transcodeConfig = {
-      attributeIDs: {
-        positions: "POSITION",
-        normals: "NORMAL",
-        texCoords: "TEX_COORD",
-        colors: "COLOR",
-      },
-      attributeTypes: {
-        positions: "Float32Array",
-        normals: "Float32Array",
-        texCoords: "Float32Array",
-        colors: "Float32Array",
-      },
-      useUniqueIDs: false,
-    },
-
+async function loadDraco(urlOrArrayBuffer, options = {}) {
+  const {
+    transcoderPath,
+    workerPath,
+    transcodeConfig = DEFAULT_TRANSCODE_CONFIG,
     workerLimit,
-    workerConfig,
-  } = {},
-) {
-  if (!workerPool) workerPool = new WorkerPool(workerLimit, workerConfig);
+  } = options;
 
-  transcoderPending = getTranscoder(transcoderPath);
-
-  return await loadGeometry(
+  const buffer =
     urlOrArrayBuffer instanceof ArrayBuffer
       ? urlOrArrayBuffer
-      : await loadArrayBuffer(urlOrArrayBuffer),
-    transcodeConfig,
-  );
+      : await loadArrayBuffer(urlOrArrayBuffer);
+
+  const { geometry } = await getPool({
+    transcoderPath,
+    workerPath,
+    workerLimit,
+  }).run({
+    message: { type: "decode", taskConfig: transcodeConfig, buffer },
+    transfer: [buffer],
+    cost: buffer.byteLength,
+    key: JSON.stringify(transcodeConfig),
+    cacheKey: buffer,
+  });
+
+  return geometry;
+}
+
+/**
+ * Terminate every Draco decoder worker. Safe to call at any point; subsequent
+ * `loadDraco` calls transparently start a new pool.
+ * @alias module:pex-loaders.disposeDraco
+ */
+function disposeDraco() {
+  for (const pool of pools.values()) pool.dispose();
+  pools.clear();
 }
 
 export default loadDraco;
+export { disposeDraco };

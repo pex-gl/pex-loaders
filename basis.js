@@ -118,7 +118,7 @@ const InternalFormatToSRGB = {
 
   // BPTC
   [InternalFormat.RGBA_BPTC_Format]: InternalFormatSRGB.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT,
-}
+};
 
 // Decoder API
 let transcoderPending;
@@ -139,7 +139,9 @@ const getTranscoder = async (transcoderPath) =>
   Promise.all([
     getWorkerStringUrl(
       await (await fetch(`${transcoderPath}basis_transcoder.js`)).text(),
-      await (await (await fetch(`${transcoderPath}basis-worker.js`)).text())
+      await (
+        await (await fetch(`${transcoderPath}basis-worker.js`)).text()
+      )
         .replace("module.exports = BasisWorker", "")
         .replace("export default BasisWorker;", ""),
       // BasisWorker.toString()
@@ -149,76 +151,35 @@ const getTranscoder = async (transcoderPath) =>
 
 // Texture creation
 const loadCompressedTexture = async (buffers, taskConfig = {}) => {
+  // Levels and global data are the payload, not configuration: two decodes of
+  // the same buffer with the same settings are the same task.
   // eslint-disable-next-line no-unused-vars
   const { globalData, levels, ...taskConfigForCache } = taskConfig;
-  const taskKey = JSON.stringify(taskConfigForCache);
 
-  const cachedTask = workerPool.hasTask(taskKey, buffers[0]);
-  if (cachedTask) return cachedTask;
-
-  let worker;
-  let taskId;
-  let taskCost = 0;
-
-  for (let i = 0; i < buffers.length; i++) {
-    taskCost += buffers[i].byteLength;
-  }
-
-  const texturePending = workerPool
-    .getWorker(transcoderPending, taskCost)
-    .then((workerData) => {
-      ({ worker, taskId } = workerData);
-
-      return new Promise((resolve, reject) => {
-        worker._callbacks[taskId] = { resolve, reject };
-
-        worker.postMessage(
-          {
-            type: "decode",
-            id: taskId,
-            taskConfig,
-            buffers,
-          },
-          buffers,
-        );
-      });
-    })
-    .then((message) => {
-      // eslint-disable-next-line no-unused-vars
-      const { type, id, hasAlpha, ...texture } = message;
-
-      if (taskConfig.colorSpace === "srgb") {
-        const srgbInternalFormat = InternalFormatToSRGB[texture.internalFormat];
-        if (srgbInternalFormat) {
-          texture.internalFormat = srgbInternalFormat;
-        } else {
-          console.warn(
-            `Missing SRGB conversion format for internalFormat "${texture.internalFormat}"`,
-          );
-        }
-      }
-
-      return {
-        compressed: texture.internalFormat !== InternalFormat.RGBAFormat,
-        ...texture,
-      };
-    });
-
-  // Remove task from the task list.
-  texturePending
-    .catch(() => true)
-    .then(() => {
-      if (worker && taskId) {
-        workerPool.releaseTask(worker, taskId);
-      }
-    });
-
-  workerPool.taskCache.set(buffers[0], {
-    key: taskKey,
-    promise: texturePending,
+  // eslint-disable-next-line no-unused-vars
+  const { type, id, hasAlpha, ...texture } = await workerPool.run({
+    message: { type: "decode", taskConfig, buffers },
+    transfer: buffers,
+    cost: buffers.reduce((total, { byteLength }) => total + byteLength, 0),
+    key: JSON.stringify(taskConfigForCache),
+    cacheKey: buffers[0],
   });
 
-  return texturePending;
+  if (taskConfig.colorSpace === "srgb") {
+    const srgbInternalFormat = InternalFormatToSRGB[texture.internalFormat];
+    if (srgbInternalFormat) {
+      texture.internalFormat = srgbInternalFormat;
+    } else {
+      console.warn(
+        `Missing SRGB conversion format for internalFormat "${texture.internalFormat}"`,
+      );
+    }
+  }
+
+  return {
+    compressed: texture.internalFormat !== InternalFormat.RGBAFormat,
+    ...texture,
+  };
 };
 
 /**
@@ -256,9 +217,20 @@ async function loadBasis(
     },
   } = {},
 ) {
-  if (!workerPool) workerPool = new WorkerPool(workerLimit, workerConfig);
-
   transcoderPending = getTranscoder(transcoderPath);
+
+  workerPool ??= new WorkerPool({
+    workerLimit,
+    createWorker: async () => {
+      const [workerSourceURL, wasmBinary] = await transcoderPending;
+      const worker = new Worker(workerSourceURL);
+      worker.postMessage({
+        type: "init",
+        config: { ...workerConfig, wasmBinary },
+      });
+      return worker;
+    },
+  });
 
   const hasManyBuffers = Array.isArray(urlOrArrayBuffer);
 

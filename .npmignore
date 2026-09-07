@@ -9,3 +9,4 @@ index.html
 tsconfig.json
 .editorconfig
 .nojekyll
+/scripts

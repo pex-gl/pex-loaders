@@ -1,6 +1,6 @@
 /** @module pex-loaders */
 
-export { default as loadDraco } from "./draco.js";
+export { default as loadDraco, disposeDraco } from "./draco.js";
 
 export { default as loadKtx2 } from "./ktx2.js";
 export { default as loadBasis, BasisFormat } from "./basis.js";
@@ -13,5 +13,3 @@ export { default as loadExr } from "./exr.js";
 export { default as WorkerPool } from "./worker-pool.js";
 /** @private */
 export { default as BasisWorker } from "./decoders/basis/basis-worker.js";
-/** @private */
-export { default as DracoWorker } from "./decoders/draco/draco-worker.js";
