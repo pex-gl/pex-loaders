@@ -1,6 +1,7 @@
+import * as gpu from "pex-gpu";
+
 import { loadArrayBuffer } from "pex-io";
 import { utils } from "pex-math";
-import * as SHADERS from "pex-shaders";
 
 // https://github.com/hsnilsson/MPFExtractor
 const extractMPF = async (
@@ -240,15 +241,76 @@ const extractXMP = (input) => {
   }
 };
 
+const shader = /* wgsl */ `
+struct GainMap {
+  gainMapMin: vec3f,
+  gainMapMax: vec3f,
+  gamma: vec3f,
+  offsetSdr: vec3f,
+  offsetHdr: vec3f,
+  weightFactor: f32,
+}
+@group(0) @binding(0) var<uniform> gainMap: GainMap;
+@group(0) @binding(1) var linearSampler: sampler;
+@group(0) @binding(2) var sdrTexture: texture_2d<f32>;
+@group(0) @binding(3) var gainMapTexture: texture_2d<f32>;
+
+const HALF_FLOAT_MAX = vec3f(65504.0);
+const HALF_FLOAT_MIN = vec3f(-65504.0);
+
+struct VertexOut {
+  @builtin(position) position: vec4f,
+  @location(0) uv: vec2f,
+}
+
+@vertex
+fn vertexMain(@builtin(vertex_index) index: u32) -> VertexOut {
+  let uv = vec2f(f32((index << 1u) & 2u), f32(index & 2u));
+  return VertexOut(vec4f(uv * 2.0 - 1.0, 0.0, 1.0), uv);
+}
+
+@fragment
+fn fragmentMain(input: VertexOut) -> @location(0) vec4f {
+  // sdrTexture is *-srgb: textureSample returns linear values, as the gain map
+  // recovery math requires.
+  let rgb = textureSample(sdrTexture, linearSampler, input.uv).rgb;
+  let recovery = textureSample(gainMapTexture, linearSampler, input.uv).rgb;
+
+  let logRecovery = pow(recovery, gainMap.gamma);
+  let logBoost = mix(gainMap.gainMapMin, gainMap.gainMapMax, logRecovery);
+  let hdrColor =
+    (rgb + gainMap.offsetSdr) * exp2(logBoost * gainMap.weightFactor) -
+    gainMap.offsetHdr;
+
+  return vec4f(clamp(hdrColor, HALF_FLOAT_MIN, HALF_FLOAT_MAX), 1.0);
+}
+`;
+
+const TEXTURE_FORMAT = "rgba16float";
+
+/**
+ * @typedef {object} UltraHdrOptions
+ * @property {number} [maxDisplayBoost] Linear headroom to decode for, clamped
+ *   to [1, 65504]. Defaults to the file's full capacity (`2 **
+ *   hdrCapacityMax`), which decodes at full strength. Pass the display's
+ *   headroom (eg. `screen.highDynamicRangeHeadroom`) to decode for what the
+ *   screen can actually show.
+ */
+
 /**
  * Load an Ultra HDR (aka gain map) file or array buffer as a texture
- * @alias module:pex-loaders.loadUltraHdr
- * @param {ctx} ctx
+ *
+ * @param {import("pex-gpu").GpuContext} ctx
  * @param {string | ArrayBuffer} urlOrArrayBuffer
- * @param {ctx.texture2D} [texture] Optionally pass an already created texture resource.
- * @returns {Promise<ctx.texture2D>}
+ * @param {UltraHdrOptions} [options]
+ * @param {import("pex-gpu").GpuTexture} [texture] Optionally pass an already
+ *   created texture resource. Reused when it matches the SDR image size and the
+ *   rgba16float format, disposed and reallocated otherwise: WebGPU textures
+ *   cannot be resized.
+ * @returns {Promise<import("pex-gpu").GpuTexture>}
+ * @alias module:pex-loaders.loadUltraHdr
  */
-async function loadUltraHdr(ctx, urlOrArrayBuffer, texture) {
+async function loadUltraHdr(ctx, urlOrArrayBuffer, options, texture) {
   const jpegBuffer = new Uint8Array(
     urlOrArrayBuffer instanceof ArrayBuffer
       ? urlOrArrayBuffer
@@ -266,49 +328,47 @@ async function loadUltraHdr(ctx, urlOrArrayBuffer, texture) {
   const gainMapBuffer = new Uint8Array(await images[1].arrayBuffer());
 
   const blobOptions = { type: "image/jpeg" };
-  const imageBitmapOptions = { imageOrientation: "flipY" };
 
   const [sdrImage, gainMapImage] = await Promise.all([
-    createImageBitmap(new Blob([sdrBuffer], blobOptions), imageBitmapOptions),
-    gainMapBuffer
-      ? createImageBitmap(
-          new Blob([gainMapBuffer], blobOptions),
-          imageBitmapOptions,
-        )
-      : Promise.resolve(new ImageData(2, 2)),
+    createImageBitmap(new Blob([sdrBuffer], blobOptions)),
+    createImageBitmap(new Blob([gainMapBuffer], blobOptions)),
   ]);
 
-  const sdr = ctx.texture2D({
+  const sdr = gpu.createTexture(ctx, {
+    label: "ultraHdrSdr",
     data: sdrImage,
-    pixelFormat: ctx.PixelFormat.SRGB8,
-    mag: ctx.Filter.Linear,
-    min: ctx.Filter.Linear,
+    format: "rgba8unorm-srgb",
   });
 
-  const gainMap = ctx.texture2D({
+  // Recovery values are raw, not color: no srgb format, no mip chain (gain maps
+  // are at most the size of the SDR image, so this only ever magnifies).
+  const gainMap = gpu.createTexture(ctx, {
+    label: "ultraHdrGainMap",
     data: gainMapImage,
-    width: gainMapImage.width,
-    height: gainMapImage.height,
-    pixelFormat: ctx.PixelFormat.RGBA8,
-    mag: ctx.Filter.Linear,
-    min: ctx.Filter.LinearMipmapLinear,
-    mipmap: true,
+    format: "rgba8unorm",
   });
+
+  const sampler = gpu.createSampler(ctx, { filter: "linear" });
 
   // Render
-  texture ||= ctx.texture2D({
-    pixelFormat: ctx.PixelFormat.RGBA16F,
-    min: ctx.Filter.Linear,
-    mag: ctx.Filter.Linear,
-  });
-
-  ctx.update(texture, {
+  if (
+    texture &&
+    (texture.width !== sdrImage.width ||
+      texture.height !== sdrImage.height ||
+      texture.format !== TEXTURE_FORMAT)
+  ) {
+    texture.dispose();
+    texture = undefined;
+  }
+  texture ||= gpu.createTexture(ctx, {
+    label: "ultraHdr",
     width: sdrImage.width,
     height: sdrImage.height,
+    format: TEXTURE_FORMAT,
   });
 
   const maxDisplayBoost = utils.clamp(
-    Math.pow(2, metadata.hdrCapacityMax),
+    options?.maxDisplayBoost ?? Math.pow(2, metadata.hdrCapacityMax),
     1,
     65504,
   );
@@ -319,67 +379,34 @@ async function loadUltraHdr(ctx, urlOrArrayBuffer, texture) {
     1,
   );
 
-  const cmd = {
-    name: "drawGainMap",
-    pass: ctx.pass({ color: [texture], clearColor: [0, 0, 0, 1] }),
-    pipeline: ctx.pipeline({
-      vert: SHADERS.pipeline.blit.vert,
-      frag: /* glsl */ `precision highp float;
-
-#define HALF_FLOAT_MIN vec3(-65504, -65504, -65504)
-#define HALF_FLOAT_MAX vec3(65504, 65504, 65504)
-
-uniform sampler2D sdr;
-uniform sampler2D gainMap;
-uniform vec3 gamma;
-uniform vec3 offsetHdr;
-uniform vec3 offsetSdr;
-uniform vec3 gainMapMin;
-uniform vec3 gainMapMax;
-uniform float weightFactor;
-
-varying vec2 vTexCoord0;
-
-void main() {
-  vec3 rgb = texture2D(sdr, vTexCoord0).rgb;
-  vec3 recovery = texture2D(gainMap, vTexCoord0).rgb;
-
-  vec3 logRecovery = pow(recovery, gamma);
-  vec3 logBoost = gainMapMin * (1.0 - logRecovery) + gainMapMax * logRecovery;
-  vec3 hdrColor = (rgb + offsetSdr) * exp2(logBoost * weightFactor) - offsetHdr;
-  vec3 clampedHdrColor = max(HALF_FLOAT_MIN, min(HALF_FLOAT_MAX, hdrColor));
-
-  gl_FragColor = vec4(clampedHdrColor, 1.0);
-}`,
-      depthTest: false,
-      depthWrite: false,
-    }),
-    attributes: {
-      aPosition: ctx.vertexBuffer(Float32Array.of(-1, -1, 3, -1, -1, 3)),
+  gpu.submit(ctx, {
+    label: "drawGainMap",
+    pass: {
+      colorAttachments: [{ texture, clearValue: [0, 0, 0, 1] }],
     },
+    pipeline: { shader },
+    // WebGPU render targets are top-left origin, so sampling the fullscreen
+    // triangle at its raw uv stores the result bottom-up: the same orientation
+    // loadHdr/loadExr produce with flipY.
     count: 3,
     uniforms: {
-      sdr,
-      gainMap,
-      gainMapMin: metadata.gainMapMin,
-      gainMapMax: metadata.gainMapMax,
-      offsetSdr: metadata.offsetSdr,
-      offsetHdr: metadata.offsetHdr,
-      gamma: metadata.gamma.map((c) => 1 / c),
-      hdrCapacityMin: metadata.hdrCapacityMin,
-      hdrCapacityMax: metadata.hdrCapacityMax,
-      weightFactor,
+      gainMap: {
+        gainMapMin: metadata.gainMapMin,
+        gainMapMax: metadata.gainMapMax,
+        gamma: metadata.gamma.map((c) => 1 / c),
+        offsetSdr: metadata.offsetSdr,
+        offsetHdr: metadata.offsetHdr,
+        weightFactor,
+      },
+      linearSampler: sampler,
+      sdrTexture: sdr,
+      gainMapTexture: gainMap,
     },
-  };
-
-  ctx.submit(cmd);
+  });
 
   // Dispose
-  ctx.dispose(sdr);
-  ctx.dispose(gainMap);
-  ctx.dispose(cmd.attributes.aPosition);
-  ctx.dispose(cmd.pass);
-  ctx.dispose(cmd.pipeline);
+  sdr.dispose();
+  gainMap.dispose();
   sdrImage.close();
   gainMapImage.close();
 

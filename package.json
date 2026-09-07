@@ -45,9 +45,9 @@
     "ktx-parse": "^1.1.0",
     "parse-exr": "^1.0.2",
     "parse-hdr": "^1.0.0",
+    "pex-gpu": "^0.0.2",
     "pex-io": "^3.0.2",
     "pex-math": "^4.1.2",
-    "pex-shaders": "^1.0.0",
     "zstddec": "^0.1.0"
   },
   "engines": {

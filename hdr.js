@@ -1,36 +1,47 @@
 import { loadArrayBuffer } from "pex-io";
-
 import parseHdr from "parse-hdr";
+import { createTexture } from "pex-gpu";
 
 /**
- * Load an HDR file or array buffer as a texture
- * @alias module:pex-loaders.loadHdr
- * @param {ctx} ctx
+ * Load a Radiance HDR file (.hdr) as an equirectangular envMap texture.
+ *
+ * Uploads to rgba16float by default: parse-hdr decodes to a Float32Array, and
+ * rgba16float preserves radiance beyond 1.0 while staying filterable for the
+ * skybox renderer's linear sampler.
+ *
+ * @param {import("pex-gpu").GpuContext} ctx
  * @param {string | ArrayBuffer} urlOrArrayBuffer
- * @param {ctx.texture2D} [texture] Optionally pass an already created texture resource.
- * @returns {Promise<ctx.texture2D>}
+ * @param {UltraHdrOptions} [options]
+ * @returns {Promise<import("pex-gpu").GpuTexture>}
+ * @alias module:pex-loaders.loadHdr
  */
-async function loadHdr(ctx, urlOrArrayBuffer, texture) {
-  const parsed = parseHdr(
-    urlOrArrayBuffer instanceof ArrayBuffer
-      ? urlOrArrayBuffer
-      : await loadArrayBuffer(urlOrArrayBuffer),
+async function loadHdr(ctx, urlOrArrayBuffer, options = {}) {
+  let format = options.format ?? "rgba16float";
+
+  if (
+    format === "rgba32float" &&
+    !ctx.device.features.has("float32-filterable")
+  ) {
+    console.warn(
+      "pex-loaders: loadHdr",
+      `"rgba32float" requested but the "float32-filterable" feature is unavailable; falling back to "rgba16float"`,
+    );
+    format = "rgba16float";
+  }
+
+  const isArrayBuffer = urlOrArrayBuffer instanceof ArrayBuffer;
+
+  const { shape, data } = parseHdr(
+    isArrayBuffer ? urlOrArrayBuffer : await loadArrayBuffer(urlOrArrayBuffer),
   );
 
-  texture ||= ctx.texture2D({
-    pixelFormat: ctx.PixelFormat.RGBA32F,
-    min: ctx.Filter.Linear,
-    mag: ctx.Filter.Linear,
-    flipY: true,
+  return createTexture(ctx, {
+    label: isArrayBuffer ? "hdr" : urlOrArrayBuffer,
+    width: shape[0],
+    height: shape[1],
+    format,
+    data: format === "rgba16float" ? new Float16Array(data) : data,
   });
-
-  ctx.update(texture, {
-    data: parsed.data,
-    width: parsed.shape[0],
-    height: parsed.shape[1],
-  });
-
-  return texture;
 }
 
 export default loadHdr;
