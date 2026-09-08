@@ -11,51 +11,81 @@
 class WorkerPool {
   /**
    * @param {object} options
-   * @param {() => Promise<Worker>} options.createWorker Creates a worker that is ready to accept decode requests — including any transcoder initialisation.
+   * @param {function(): Promise<Worker>} options.createWorker Creates a worker that is ready to accept decode requests — including any transcoder initialisation.
    * @param {number} [options.workerLimit=4] Maximum number of concurrent workers.
    */
   constructor({ createWorker, workerLimit = 4 }) {
     this.createWorker = createWorker;
     this.workerLimit = workerLimit;
 
-    this.workers = [];
+    /** One promise per worker, pushed synchronously when the slot is claimed. */
+    this.entries = [];
+    /** Entries whose worker has finished being created. */
+    this.live = new Set();
+    /** Tasks assigned but not yet finished, tracked synchronously. */
+    this.outstanding = 0;
     this.nextTaskId = 0;
     this.taskCache = new WeakMap();
+    /** Bumped by dispose(), so workers still being created can tell they are
+     * already obsolete when they land. */
+    this.generation = 0;
   }
 
-  #register(worker) {
-    // Pending tasks for this worker, by id. Kept on the pool rather than as
-    // expando properties on the Worker instance.
-    const callbacks = new Map();
+  #spawn() {
+    const generation = this.generation;
+    const pending = this.createWorker().then((worker) => {
+      // Pending tasks for this worker, by id. Kept on the pool rather than as
+      // expando properties on the Worker instance.
+      const entry = {
+        worker,
+        callbacks: new Map(),
+        costs: new Map(),
+        load: 0,
+      };
 
-    worker.onmessage = ({ data: message }) => {
-      const callback = callbacks.get(message.id);
-      // An id-less error (a failed transcoder init) fails every task queued on
-      // this worker, since none of them can now complete.
-      if (!callback) {
-        if (message.type === "error") this.#failWorker(worker, message.error);
-        return;
+      worker.onmessage = ({ data: message }) => {
+        const callback = entry.callbacks.get(message.id);
+        // An id-less error (a failed transcoder init) fails every task queued
+        // on this worker, since none of them can now complete.
+        if (!callback) {
+          if (message.type === "error") this.#fail(entry, message.error);
+          return;
+        }
+        if (message.type === "error") {
+          callback.reject(new Error(message.error));
+        } else {
+          callback.resolve(message);
+        }
+      };
+
+      // Without these a worker that fails to boot leaves every task pending.
+      worker.onerror = ({ message }) =>
+        this.#fail(entry, message ?? "worker error");
+      worker.onmessageerror = () =>
+        this.#fail(entry, "worker message could not be deserialized");
+
+      // dispose() may have run while this worker was still being created.
+      if (this.generation !== generation) {
+        worker.terminate();
+        throw new Error("pex-loaders: worker pool disposed");
       }
-      if (message.type === "error") {
-        callback.reject(new Error(message.error));
-      } else {
-        callback.resolve(message);
-      }
-    };
 
-    // Without these a worker that fails to boot leaves every task pending.
-    worker.onerror = ({ message }) =>
-      this.#failWorker(worker, message ?? "worker error");
-    worker.onmessageerror = () =>
-      this.#failWorker(worker, "worker message could not be deserialized");
+      this.live.add(entry);
+      return entry;
+    });
 
-    return { worker, callbacks, costs: new Map(), load: 0 };
+    // A failed spawn must not poison the pool: drop the slot so the next task
+    // can try again, rather than leaving a rejected promise every later
+    // Promise.all re-throws.
+    pending.catch(() => {
+      const index = this.entries.indexOf(pending);
+      if (index !== -1) this.entries.splice(index, 1);
+    });
+
+    return pending;
   }
 
-  #failWorker(worker, error) {
-    const entry = this.workers.find((candidate) => candidate.worker === worker);
-    if (!entry) return;
-
+  #fail(entry, error) {
     for (const { reject } of entry.callbacks.values()) reject(new Error(error));
     entry.callbacks.clear();
     entry.costs.clear();
@@ -63,11 +93,29 @@ class WorkerPool {
   }
 
   async #acquire(cost) {
-    if (this.workers.length < this.workerLimit) {
-      this.workers.push(this.#register(await this.createWorker()));
+    // Grow only when every worker already has work: each one costs a wasm
+    // instance, so idle workers are pure overhead.
+    //
+    // The slot is claimed synchronously because #acquire is re-entered while
+    // createWorker() is awaited — a check spanning that await would let every
+    // queued task spawn its own worker, and `workerLimit` would never apply.
+    if (
+      this.outstanding >= this.entries.length &&
+      this.entries.length < this.workerLimit
+    ) {
+      this.entries.push(this.#spawn());
+    }
+    this.outstanding++;
+
+    let entries;
+    try {
+      entries = await Promise.all(this.entries);
+    } catch (error) {
+      this.outstanding--;
+      throw error;
     }
 
-    const entry = this.workers.reduce((least, candidate) =>
+    const entry = entries.reduce((least, candidate) =>
       candidate.load < least.load ? candidate : least,
     );
 
@@ -81,6 +129,7 @@ class WorkerPool {
     entry.load -= entry.costs.get(taskId) ?? 0;
     entry.costs.delete(taskId);
     entry.callbacks.delete(taskId);
+    this.outstanding--;
   }
 
   /**
@@ -126,11 +175,17 @@ class WorkerPool {
 
   /** Terminate every worker. The pool can be used again afterwards. */
   dispose() {
-    for (const entry of this.workers) {
-      this.#failWorker(entry.worker, "worker pool disposed");
+    this.generation++;
+    for (const entry of this.live) {
+      this.#fail(entry, "worker pool disposed");
       entry.worker.terminate();
     }
-    this.workers = [];
+    this.live.clear();
+    // Workers still being created terminate themselves once they resolve; the
+    // rejection that follows is theirs to swallow, not an unhandled one.
+    for (const pending of this.entries) pending.catch(() => {});
+    this.entries = [];
+    this.outstanding = 0;
   }
 
   [Symbol.dispose]() {
