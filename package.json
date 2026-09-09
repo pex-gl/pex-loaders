@@ -40,6 +40,7 @@
   "scripts": {
     "build": "snowdev build",
     "release": "snowdev release",
+    "release:alpha": "snowdev release --release-as minor --prerelease alpha",
     "vendor:draco": "node scripts/vendor-draco.js"
   },
   "dependencies": {
