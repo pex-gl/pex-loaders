@@ -6,13 +6,17 @@
  * The pool owns scheduling, reply routing, result caching and teardown; how a
  * worker is created and initialised is left to `createWorker`, since each
  * decoder loads its own transcoder.
+ *
  * @private
  */
 class WorkerPool {
   /**
    * @param {object} options
-   * @param {function(): Promise<Worker>} options.createWorker Creates a worker that is ready to accept decode requests — including any transcoder initialisation.
-   * @param {number} [options.workerLimit=4] Maximum number of concurrent workers.
+   * @param {function(): Promise<Worker>} options.createWorker Creates a worker
+   *   that is ready to accept decode requests — including any transcoder
+   *   initialisation.
+   * @param {number} [options.workerLimit=4] Maximum number of concurrent
+   *   workers.
    */
   constructor({ createWorker, workerLimit = 4 }) {
     this.createWorker = createWorker;
@@ -26,8 +30,10 @@ class WorkerPool {
     this.outstanding = 0;
     this.nextTaskId = 0;
     this.taskCache = new WeakMap();
-    /** Bumped by dispose(), so workers still being created can tell they are
-     * already obsolete when they land. */
+    /**
+     * Bumped by dispose(), so workers still being created can tell they are
+     * already obsolete when they land.
+     */
     this.generation = 0;
   }
 
@@ -135,12 +141,18 @@ class WorkerPool {
   /**
    * Run one decode task, reusing the cached result when the same buffer is
    * decoded again with the same configuration.
+   *
    * @param {object} options
-   * @param {object} options.message Payload merged with `{ type: "decode", id }` and posted to the worker.
-   * @param {Transferable[]} [options.transfer=[]] Buffers to transfer rather than clone.
-   * @param {number} [options.cost=0] Relative task weight used to balance load across workers.
-   * @param {string} [options.key] Configuration identity — a cache hit requires a matching key.
-   * @param {ArrayBuffer} [options.cacheKey] Buffer the result is cached against.
+   * @param {object} options.message Payload merged with `{ type: "decode", id
+   *   }` and posted to the worker.
+   * @param {Transferable[]} [options.transfer=[]] Buffers to transfer rather
+   *   than clone.
+   * @param {number} [options.cost=0] Relative task weight used to balance load
+   *   across workers.
+   * @param {string} [options.key] Configuration identity — a cache hit requires
+   *   a matching key.
+   * @param {ArrayBuffer} [options.cacheKey] Buffer the result is cached
+   *   against.
    * @returns {Promise<object>} The worker's reply message.
    */
   run({ message, transfer = [], cost = 0, key, cacheKey }) {

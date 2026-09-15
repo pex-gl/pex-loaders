@@ -10,7 +10,10 @@ const RED_FORMAT = 1028;
 
 /**
  * @typedef {object} ExrOptions
- * @property {"rgba16float"|"rgba32float"} [format="rgba16float"] Texture format. Falls back to "rgba16float" when "rgba32float" is requested without the "float32-filterable" feature. Single-channel EXRs upload to the matching "r16float"/"r32float" instead.
+ * @property {"rgba16float" | "rgba32float"} [format="rgba16float"] Texture
+ *   format. Falls back to "rgba16float" when "rgba32float" is requested without
+ *   the "float32-filterable" feature. Single-channel EXRs upload to the
+ *   matching "r16float"/"r32float" instead.
  */
 
 /**

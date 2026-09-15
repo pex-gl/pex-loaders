@@ -84,10 +84,18 @@ function getPool({ transcoderPath, workerPath, workerLimit }) {
 
 /**
  * @typedef {object} DracoOptions
- * @property {string} [transcoderPath] Directory holding `draco_wasm_wrapper.js` and `draco_decoder.wasm`, with a trailing slash. Defaults to the decoder vendored alongside this package.
- * @property {string} [workerPath] Path to `draco-worker.js` — a file, not a directory, since bundlers emit it under a hashed name. Defaults to the worker vendored alongside this package.
- * @property {object} [transcodeConfig] Draco attribute mapping: `attributeIDs`, `attributeTypes` (TypedArray constructor names) and `useUniqueIDs`. Set `useUniqueIDs` for glTF-sourced buffers, which identify attributes by unique ID rather than semantic name.
- * @property {number} [workerLimit=4] Maximum number of concurrent decoder workers.
+ * @property {string} [transcoderPath] Directory holding `draco_wasm_wrapper.js`
+ *   and `draco_decoder.wasm`, with a trailing slash. Defaults to the decoder
+ *   vendored alongside this package.
+ * @property {string} [workerPath] Path to `draco-worker.js` — a file, not a
+ *   directory, since bundlers emit it under a hashed name. Defaults to the
+ *   worker vendored alongside this package.
+ * @property {object} [transcodeConfig] Draco attribute mapping: `attributeIDs`,
+ *   `attributeTypes` (TypedArray constructor names) and `useUniqueIDs`. Set
+ *   `useUniqueIDs` for glTF-sourced buffers, which identify attributes by
+ *   unique ID rather than semantic name.
+ * @property {number} [workerLimit=4] Maximum number of concurrent decoder
+ *   workers.
  */
 
 /**
@@ -105,7 +113,8 @@ function getPool({ transcoderPath, workerPath, workerLimit }) {
  *
  * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {DracoOptions} [options]
- * @returns {Promise<Record<string, DracoAttribute>>} One entry per decoded attribute, plus `indices` for meshes.
+ * @returns {Promise<Record<string, DracoAttribute>>} One entry per decoded
+ *   attribute, plus `indices` for meshes.
  * @alias module:pex-loaders.loadDraco
  */
 async function loadDraco(urlOrArrayBuffer, options = {}) {
@@ -139,6 +148,7 @@ async function loadDraco(urlOrArrayBuffer, options = {}) {
 /**
  * Terminate every Draco decoder worker. Safe to call at any point; subsequent
  * `loadDraco` calls transparently start a new pool.
+ *
  * @alias module:pex-loaders.disposeDraco
  */
 function disposeDraco() {
