@@ -47,9 +47,9 @@
     "ktx-parse": "^2.0.0",
     "parse-exr": "^1.0.2",
     "parse-hdr": "^1.0.0",
-    "pex-gpu": "file:../pex-gpu",
-    "pex-io": "^3.0.2",
-    "pex-math": "^4.1.2",
+    "pex-gpu": "^0.0.3",
+    "pex-io": "^3.2.0",
+    "pex-math": "^4.4.0",
     "zstddec": "^0.3.1"
   },
   "devDependencies": {
