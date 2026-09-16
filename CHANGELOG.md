@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.0](https://github.com/pex-gl/pex-loaders/compare/v1.2.1...v2.0.0-alpha.0) (2026-09-16)
+
+
+### Features
+
+* upgrade basis/ktx2 + fix worker-pool concurrency ([5db0437](https://github.com/pex-gl/pex-loaders/commit/5db043706a36d1c35bd14dad7055e1d9a5611c8a))
+* upgrade draco and worker pool ([bbb916c](https://github.com/pex-gl/pex-loaders/commit/bbb916c98cb6e6be0f8bb51a2c09133d6fdfebd1))
+* upgrade exr, hdr and ultra-hdr for pex-gpu ([f72a4c2](https://github.com/pex-gl/pex-loaders/commit/f72a4c23eae5076954a03ec866d66155a10dd1a8))
+
+
+
 ## [1.2.1](https://github.com/pex-gl/pex-loaders/compare/v1.2.0...v1.2.1) (2025-12-19)
 
 
