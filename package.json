@@ -1,6 +1,6 @@
 {
   "name": "pex-loaders",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "description": "Resource loader for PEX.",
   "keywords": [
     "pex",
@@ -38,8 +38,8 @@
   "main": "./index.js",
   "types": "./types/index.d.ts",
   "scripts": {
-    "dev": "snowdev dev",
     "build": "snowdev build",
+    "dev": "snowdev dev",
     "release": "snowdev release",
     "release:alpha": "snowdev release --release-as minor --prerelease alpha",
     "vendor:draco": "node scripts/vendor-draco.js"
@@ -52,18 +52,18 @@
     "pex-math": "^4.4.0",
     "zstddec": "^0.3.1"
   },
-  "peerDependencies": {
-    "pex-gpu": "*"
-  },
   "devDependencies": {
     "draco3d": "^1.5.7",
     "pex-gpu": "^0.0.4"
   },
+  "peerDependencies": {
+    "pex-gpu": "*"
+  },
+  "packageManager": "npm@10.5.1",
   "engines": {
     "node": ">=22.0.0",
     "snowdev": ">=3.0.0-alpha.3"
   },
-  "packageManager": "npm@10.5.1",
   "snowdev": {
     "serve": false
   }
