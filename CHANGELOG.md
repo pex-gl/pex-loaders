@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.4](https://github.com/pex-gl/pex-loaders/compare/v2.0.0-alpha.3...v2.0.0-alpha.4) (2026-11-03)
+
+### Performance Improvements
+
+* lazy load zstddec and parse-exr ([41a1bc7](https://github.com/pex-gl/pex-loaders/commit/41a1bc7b97d87a6e9651204330d5f7ca5689c730))
+
 # [2.0.0-alpha.3](https://github.com/pex-gl/pex-loaders/compare/v2.0.0-alpha.2...v2.0.0-alpha.3) (2026-11-03)
 
 # [2.0.0-alpha.2](https://github.com/pex-gl/pex-loaders/compare/v2.0.0-alpha.1...v2.0.0-alpha.2) (2026-09-24)
