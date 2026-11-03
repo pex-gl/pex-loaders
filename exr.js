@@ -26,7 +26,7 @@ const RED_FORMAT = 1028;
  * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {ExrOptions} [options]
  * @returns {Promise<import("pex-gpu").GpuTexture>}
- * @alias module:pex-loaders.loadExr
+ * @alias module:"pex-loaders".loadExr
  */
 async function loadExr(ctx, urlOrArrayBuffer, options = {}) {
   let format = options.format ?? "rgba16float";
@@ -57,16 +57,13 @@ async function loadExr(ctx, urlOrArrayBuffer, options = {}) {
     format: channels,
   } = parseExr(buffer, isHalfFloat ? HALF_FLOAT_TYPE : FLOAT_TYPE);
 
+  if (channels === RED_FORMAT) format = isHalfFloat ? "r16float" : "r32float";
+
   return createTexture(ctx, {
     label: isArrayBuffer ? "exr" : urlOrArrayBuffer,
     width,
     height,
-    format:
-      channels === RED_FORMAT
-        ? isHalfFloat
-          ? "r16float"
-          : "r32float"
-        : format,
+    format,
     data,
   });
 }

@@ -65,7 +65,7 @@ const getAlpha = ({ colorModel, samples }) => {
  * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {Ktx2Options} [options]
  * @returns {Promise<Ktx2Result>}
- * @alias module:pex-loaders.transcodeKtx2
+ * @alias module:"pex-loaders".transcodeKtx2
  */
 async function transcodeKtx2(
   ctx,
@@ -147,7 +147,7 @@ async function transcodeKtx2(
  * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {Ktx2Options} [options]
  * @returns {Promise<import("pex-gpu").GpuTexture>}
- * @alias module:pex-loaders.loadKtx2
+ * @alias module:"pex-loaders".loadKtx2
  */
 async function loadKtx2(ctx, urlOrArrayBuffer, options) {
   const { width, height, format, levels } = await transcodeKtx2(

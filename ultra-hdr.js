@@ -3,6 +3,7 @@ import * as gpu from "pex-gpu";
 import { loadArrayBuffer } from "pex-io";
 import { utils } from "pex-math";
 
+/* eslint-disable */
 // https://github.com/hsnilsson/MPFExtractor
 const extractMPF = async (
   imageArrayBuffer,
@@ -240,6 +241,7 @@ const extractXMP = (input) => {
     start = str.indexOf("<x:xmpmeta", end);
   }
 };
+/* eslint-enable */
 
 const shader = /* wgsl */ `
 struct GainMap {
@@ -308,7 +310,7 @@ const TEXTURE_FORMAT = "rgba16float";
  *   rgba16float format, disposed and reallocated otherwise: WebGPU textures
  *   cannot be resized.
  * @returns {Promise<import("pex-gpu").GpuTexture>}
- * @alias module:pex-loaders.loadUltraHdr
+ * @alias module:"pex-loaders".loadUltraHdr
  */
 async function loadUltraHdr(ctx, urlOrArrayBuffer, options, texture) {
   const jpegBuffer = new Uint8Array(
@@ -370,7 +372,7 @@ async function loadUltraHdr(ctx, urlOrArrayBuffer, options, texture) {
   const maxDisplayBoost = utils.clamp(
     options?.maxDisplayBoost ?? Math.pow(2, metadata.hdrCapacityMax),
     1,
-    65504,
+    65_504,
   );
   const weightFactor = utils.clamp(
     (Math.log2(maxDisplayBoost) - metadata.hdrCapacityMin) /

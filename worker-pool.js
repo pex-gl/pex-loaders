@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-add-event-listener, unicorn/prefer-await */
 /**
  * A pool of decoder workers speaking a small request/response protocol:
  * requests carry a numeric `id`, replies are `{ type: "decode", id, ... }` on
@@ -65,8 +66,8 @@ class WorkerPool {
       };
 
       // Without these a worker that fails to boot leaves every task pending.
-      worker.onerror = ({ message }) =>
-        this.#fail(entry, message ?? "worker error");
+      worker.onerror = ({ message = "worker error" }) =>
+        this.#fail(entry, message);
       worker.onmessageerror = () =>
         this.#fail(entry, "worker message could not be deserialized");
 
@@ -167,7 +168,7 @@ class WorkerPool {
   }
 
   #cached(key, cacheKey) {
-    if (!cacheKey) return undefined;
+    if (!cacheKey) return;
     const entry = this.taskCache.get(cacheKey);
     return entry?.key === key ? entry.promise : undefined;
   }

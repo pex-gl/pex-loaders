@@ -20,7 +20,7 @@ import { createTexture } from "pex-gpu";
  * @param {string | ArrayBuffer} urlOrArrayBuffer
  * @param {HdrOptions} [options]
  * @returns {Promise<import("pex-gpu").GpuTexture>}
- * @alias module:pex-loaders.loadHdr
+ * @alias module:"pex-loaders".loadHdr
  */
 async function loadHdr(ctx, urlOrArrayBuffer, options = {}) {
   let format = options.format ?? "rgba16float";

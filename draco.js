@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/relative-url-style */
 import { loadArrayBuffer } from "pex-io";
 
 import WorkerPool from "./worker-pool.js";
@@ -126,7 +127,7 @@ function getPool({ transcoderPath, workerPath, workerLimit }) {
  * @param {DracoOptions} [options]
  * @returns {Promise<Record<string, DracoAttribute>>} One entry per decoded
  *   attribute, plus `indices` for meshes.
- * @alias module:pex-loaders.loadDraco
+ * @alias module:"pex-loaders".loadDraco
  */
 async function loadDraco(urlOrArrayBuffer, options = {}) {
   const {
@@ -160,7 +161,7 @@ async function loadDraco(urlOrArrayBuffer, options = {}) {
  * Terminate every Draco decoder worker. Safe to call at any point; subsequent
  * `loadDraco` calls transparently start a new pool.
  *
- * @alias module:pex-loaders.disposeDraco
+ * @alias module:"pex-loaders".disposeDraco
  */
 function disposeDraco() {
   for (const pool of pools.values()) pool.dispose();

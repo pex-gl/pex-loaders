@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/relative-url-style */
 import { loadArrayBuffer } from "pex-io";
 import { createTexture } from "pex-gpu";
 
@@ -123,7 +124,7 @@ function getPool({ transcoderPath, workerPath, workerLimit, features }) {
  * @param {string | ArrayBuffer | ArrayBuffer[]} urlOrArrayBuffer
  * @param {BasisOptions} [options]
  * @returns {Promise<BasisResult>}
- * @alias module:pex-loaders.transcodeBasis
+ * @alias module:"pex-loaders".transcodeBasis
  */
 async function transcodeBasis(ctx, urlOrArrayBuffer, options = {}) {
   const {
@@ -136,9 +137,11 @@ async function transcodeBasis(ctx, urlOrArrayBuffer, options = {}) {
 
   const buffers = Array.isArray(urlOrArrayBuffer)
     ? urlOrArrayBuffer
-    : urlOrArrayBuffer instanceof ArrayBuffer
-      ? [urlOrArrayBuffer]
-      : [await loadArrayBuffer(urlOrArrayBuffer)];
+    : [
+        urlOrArrayBuffer instanceof ArrayBuffer
+          ? urlOrArrayBuffer
+          : await loadArrayBuffer(urlOrArrayBuffer),
+      ];
 
   const taskConfig = { colorSpace, ...transcodeConfig };
 
@@ -171,7 +174,7 @@ async function transcodeBasis(ctx, urlOrArrayBuffer, options = {}) {
  * @param {string | ArrayBuffer | ArrayBuffer[]} urlOrArrayBuffer
  * @param {BasisOptions} [options]
  * @returns {Promise<import("pex-gpu").GpuTexture>}
- * @alias module:pex-loaders.loadBasis
+ * @alias module:"pex-loaders".loadBasis
  */
 async function loadBasis(ctx, urlOrArrayBuffer, options = {}) {
   const { width, height, format, levels } = await transcodeBasis(
@@ -192,7 +195,7 @@ async function loadBasis(ctx, urlOrArrayBuffer, options = {}) {
  * Terminate every Basis transcoder worker. Safe to call at any point;
  * subsequent loads transparently start a new pool.
  *
- * @alias module:pex-loaders.disposeBasis
+ * @alias module:"pex-loaders".disposeBasis
  */
 function disposeBasis() {
   for (const pool of pools.values()) pool.dispose();
