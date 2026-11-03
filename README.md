@@ -75,9 +75,14 @@ const loadKtxTexture = async (ctx, urlOrArrayBuffer) => {
 <dd></dd>
 <dt><a href="#DracoOptions">DracoOptions</a> : <code>object</code></dt>
 <dd></dd>
+<dt><a href="#DracoTypedArray">DracoTypedArray</a> : <code>Int8Array</code> | <code>Uint8Array</code> | <code>Int16Array</code> | <code>Uint16Array</code> | <code>Int32Array</code> | <code>Uint32Array</code> | <code>Float32Array</code></dt>
+<dd><p>Arrays the Draco decoder outputs.</p>
+</dd>
 <dt><a href="#DracoAttribute">DracoAttribute</a> : <code>object</code></dt>
 <dd></dd>
 <dt><a href="#ExrOptions">ExrOptions</a> : <code>object</code></dt>
+<dd></dd>
+<dt><a href="#HdrOptions">HdrOptions</a> : <code>object</code></dt>
 <dd></dd>
 <dt><a href="#Ktx2Options">Ktx2Options</a> : <code>object</code></dt>
 <dd></dd>
@@ -201,11 +206,11 @@ skybox renderer's linear sampler.
 
 **Kind**: static method of [<code>pex-loaders</code>](#module_pex-loaders)
 
-| Param            | Type                                             |
-| ---------------- | ------------------------------------------------ |
-| ctx              | <code>module:pex-gpu~GpuContext</code>           |
-| urlOrArrayBuffer | <code>string</code> \| <code>ArrayBuffer</code>  |
-| [options]        | [<code>UltraHdrOptions</code>](#UltraHdrOptions) |
+| Param            | Type                                            |
+| ---------------- | ----------------------------------------------- |
+| ctx              | <code>module:pex-gpu~GpuContext</code>          |
+| urlOrArrayBuffer | <code>string</code> \| <code>ArrayBuffer</code> |
+| [options]        | [<code>HdrOptions</code>](#HdrOptions)          |
 
 <a name="module_pex-loaders.transcodeKtx2"></a>
 
@@ -330,6 +335,13 @@ Basis Universal source encodings.
 | [transcodeConfig] | <code>object</code> |                | Draco attribute mapping: `attributeIDs`, `attributeTypes` (TypedArray constructor names) and `useUniqueIDs`. Set `useUniqueIDs` for glTF-sourced buffers, which identify attributes by unique ID rather than semantic name. |
 | [workerLimit]     | <code>number</code> | <code>4</code> | Maximum number of concurrent decoder workers.                                                                                                                                                                               |
 
+<a name="DracoTypedArray"></a>
+
+## DracoTypedArray : <code>Int8Array</code> \| <code>Uint8Array</code> \| <code>Int16Array</code> \| <code>Uint16Array</code> \| <code>Int32Array</code> \| <code>Uint32Array</code> \| <code>Float32Array</code>
+
+Arrays the Draco decoder outputs.
+
+**Kind**: global typedef
 <a name="DracoAttribute"></a>
 
 ## DracoAttribute : <code>object</code>
@@ -337,10 +349,10 @@ Basis Universal source encodings.
 **Kind**: global typedef
 **Properties**
 
-| Name     | Type                    | Description             |
-| -------- | ----------------------- | ----------------------- |
-| data     | <code>TypedArray</code> |                         |
-| itemSize | <code>number</code>     | Components per element. |
+| Name     | Type                                             | Description             |
+| -------- | ------------------------------------------------ | ----------------------- |
+| data     | [<code>DracoTypedArray</code>](#DracoTypedArray) |                         |
+| itemSize | <code>number</code>                              | Components per element. |
 
 <a name="ExrOptions"></a>
 
@@ -352,6 +364,17 @@ Basis Universal source encodings.
 | Name     | Type                                                                         | Default                              | Description                                                                                                                                                                                     |
 | -------- | ---------------------------------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [format] | <code>&quot;rgba16float&quot;</code> \| <code>&quot;rgba32float&quot;</code> | <code>&quot;rgba16float&quot;</code> | Texture format. Falls back to "rgba16float" when "rgba32float" is requested without the "float32-filterable" feature. Single-channel EXRs upload to the matching "r16float"/"r32float" instead. |
+
+<a name="HdrOptions"></a>
+
+## HdrOptions : <code>object</code>
+
+**Kind**: global typedef
+**Properties**
+
+| Name     | Type                                                                         | Default                              | Description                                                                                        |
+| -------- | ---------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| [format] | <code>&quot;rgba16float&quot;</code> \| <code>&quot;rgba32float&quot;</code> | <code>&quot;rgba16float&quot;</code> | "rgba32float" requires the "float32-filterable" feature, falling back to "rgba16float" without it. |
 
 <a name="Ktx2Options"></a>
 
