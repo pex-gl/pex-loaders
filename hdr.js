@@ -3,6 +3,13 @@ import parseHdr from "parse-hdr";
 import { createTexture } from "pex-gpu";
 
 /**
+ * @typedef {object} HdrOptions
+ * @property {"rgba16float" | "rgba32float"} [format="rgba16float"]
+ *   "rgba32float" requires the "float32-filterable" feature, falling back to
+ *   "rgba16float" without it.
+ */
+
+/**
  * Load a Radiance HDR file (.hdr) as an equirectangular envMap texture.
  *
  * Uploads to rgba16float by default: parse-hdr decodes to a Float32Array, and
@@ -11,7 +18,7 @@ import { createTexture } from "pex-gpu";
  *
  * @param {import("pex-gpu").GpuContext} ctx
  * @param {string | ArrayBuffer} urlOrArrayBuffer
- * @param {UltraHdrOptions} [options]
+ * @param {HdrOptions} [options]
  * @returns {Promise<import("pex-gpu").GpuTexture>}
  * @alias module:pex-loaders.loadHdr
  */

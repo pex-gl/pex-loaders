@@ -99,8 +99,19 @@ function getPool({ transcoderPath, workerPath, workerLimit }) {
  */
 
 /**
+ * @typedef {Int8Array
+ *   | Uint8Array
+ *   | Int16Array
+ *   | Uint16Array
+ *   | Int32Array
+ *   | Uint32Array
+ *   | Float32Array} DracoTypedArray
+ *   Arrays the Draco decoder outputs.
+ */
+
+/**
  * @typedef {object} DracoAttribute
- * @property {import("./worker-pool.js").TypedArray} data
+ * @property {DracoTypedArray} data
  * @property {number} itemSize Components per element.
  */
 

@@ -20,13 +20,10 @@ const KTX2ChannelETC1S = { RGB: 0, RRR: 3, GGG: 4, AAA: 15 };
 const KTX2ChannelUASTC = { RGB: 0, RGBA: 3, RRR: 4, RRRG: 5 };
 
 const getAlpha = ({ colorModel, samples }) => {
-  if (colorModel === KHR_DF_MODEL_UASTC) {
-    return (samples[0].channelType & 0xf) === KTX2ChannelUASTC.RGBA;
-  }
-  return (
-    samples.length === 2 &&
-    (samples[1].channelType & 0xf) === KTX2ChannelETC1S.AAA
-  );
+  return colorModel === KHR_DF_MODEL_UASTC
+    ? (samples[0].channelType & 0xf) === KTX2ChannelUASTC.RGBA
+    : samples.length === 2 &&
+        (samples[1].channelType & 0xf) === KTX2ChannelETC1S.AAA;
 };
 
 /**
