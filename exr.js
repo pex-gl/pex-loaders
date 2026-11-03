@@ -1,5 +1,4 @@
 import { loadArrayBuffer } from "pex-io";
-import parseExr from "parse-exr";
 import { createTexture } from "pex-gpu";
 
 // parse-exr output types, and its RedFormat channel layout for single-channel
@@ -46,15 +45,17 @@ async function loadExr(ctx, urlOrArrayBuffer, options = {}) {
   const isArrayBuffer = urlOrArrayBuffer instanceof ArrayBuffer;
   const isHalfFloat = format === "rgba16float";
 
+  const [{ default: parseExr }, buffer] = await Promise.all([
+    import("parse-exr"),
+    isArrayBuffer ? urlOrArrayBuffer : loadArrayBuffer(urlOrArrayBuffer),
+  ]);
+
   const {
     width,
     height,
     data,
     format: channels,
-  } = parseExr(
-    isArrayBuffer ? urlOrArrayBuffer : await loadArrayBuffer(urlOrArrayBuffer),
-    isHalfFloat ? HALF_FLOAT_TYPE : FLOAT_TYPE,
-  );
+  } = parseExr(buffer, isHalfFloat ? HALF_FLOAT_TYPE : FLOAT_TYPE);
 
   return createTexture(ctx, {
     label: isArrayBuffer ? "exr" : urlOrArrayBuffer,

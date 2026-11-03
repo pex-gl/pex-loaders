@@ -8,12 +8,17 @@ import {
   KHR_DF_TRANSFER_SRGB,
   KHR_DF_FLAG_ALPHA_PREMULTIPLIED,
 } from "ktx-parse";
-import { ZSTDDecoder } from "zstddec";
 
 import { BasisFormat, transcodeBasis } from "./basis.js";
 
-let zstd;
 let zstdPending;
+
+const createZstd = async () => {
+  const { ZSTDDecoder } = await import("zstddec");
+  const decoder = new ZSTDDecoder();
+  await decoder.init();
+  return decoder;
+};
 
 // Channel IDs within a Basic Data Format Descriptor sample, per colour model.
 const KTX2ChannelETC1S = { RGB: 0, RRR: 3, GGG: 4, AAA: 15 };
@@ -85,11 +90,8 @@ async function transcodeKtx2(
   }
 
   const isZstd = ktx.supercompressionScheme === KHR_SUPERCOMPRESSION_ZSTD;
-  if (isZstd) {
-    zstd ??= new ZSTDDecoder();
-    zstdPending ??= zstd.init();
-    await zstdPending;
-  }
+  if (isZstd) zstdPending ??= createZstd();
+  const zstd = isZstd ? await zstdPending : null;
 
   const { pixelWidth: width, pixelHeight: height } = ktx;
 
