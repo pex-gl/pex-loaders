@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "ktx-parse": "^2.0.0",
-    "parse-exr": "^1.0.2",
+    "parse-exr": "^1.1.0",
     "parse-hdr": "^1.0.0",
     "pex-io": "^3.3.0",
     "pex-math": "^4.5.0",
@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "draco3d": "^1.5.9",
-    "pex-gpu": "^0.0.5"
+    "pex-gpu": "^0.0.6"
   },
   "peerDependencies": {
     "pex-gpu": "*"
