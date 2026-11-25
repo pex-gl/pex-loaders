@@ -55,7 +55,9 @@ async function loadExr(ctx, urlOrArrayBuffer, options = {}) {
     height,
     data,
     format: channels,
-  } = parseExr(buffer, isHalfFloat ? HALF_FLOAT_TYPE : FLOAT_TYPE);
+  } = parseExr(buffer, isHalfFloat ? HALF_FLOAT_TYPE : FLOAT_TYPE, {
+    flipY: false,
+  });
 
   if (channels === RED_FORMAT) format = isHalfFloat ? "r16float" : "r32float";
 

@@ -268,7 +268,7 @@ struct VertexOut {
 @vertex
 fn vertexMain(@builtin(vertex_index) index: u32) -> VertexOut {
   let uv = vec2f(f32((index << 1u) & 2u), f32(index & 2u));
-  return VertexOut(vec4f(uv * 2.0 - 1.0, 0.0, 1.0), uv);
+  return VertexOut(vec4f(uv * 2.0 - 1.0, 0.0, 1.0), vec2f(uv.x, 1.0 - uv.y));
 }
 
 @fragment
@@ -387,9 +387,6 @@ async function loadUltraHdr(ctx, urlOrArrayBuffer, options, texture) {
       colorAttachments: [{ texture, clearValue: [0, 0, 0, 1] }],
     },
     pipeline: { shader },
-    // WebGPU render targets are top-left origin, so sampling the fullscreen
-    // triangle at its raw uv stores the result bottom-up: the same orientation
-    // loadHdr/loadExr produce with flipY.
     count: 3,
     uniforms: {
       gainMap: {
