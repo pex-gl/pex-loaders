@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.5](https://github.com/pex-gl/pex-loaders/compare/v2.0.0-alpha.4...v2.0.0-alpha.5) (2026-11-25)
+
+### Bug Fixes
+
+* upload exr and ultra-hdr envmaps top-down ([18776d7](https://github.com/pex-gl/pex-loaders/commit/18776d7bd79448db66e6c7086116d65f6f7eb6e8))
+
 # [2.0.0-alpha.4](https://github.com/pex-gl/pex-loaders/compare/v2.0.0-alpha.3...v2.0.0-alpha.4) (2026-11-03)
 
 ### Performance Improvements
